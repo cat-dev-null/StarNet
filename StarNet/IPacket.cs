@@ -1,10 +1,11 @@
 using System;
+using System.IO;
 
 namespace StarNet
 {
     public interface IPacket
     {
-        void Decode(byte[] data);
-        byte[] Encode();
+        void Read(BinaryReader reader);
+        void Write(BinaryWriter writer);
     }
 }

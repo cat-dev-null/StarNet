@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Collections.Generic;
 
 namespace StarNet
 {
@@ -8,14 +9,15 @@ namespace StarNet
         public Guid Id { get; set; }
         public IPEndPoint EndPoint { get; set; }
         public int TotalPlayers { get; set; }
+        public TimeSpan Delay { get; set; }
+        public ServerStatus Status { get; set; }
+        public List<Coordinates3D> CoordinatesOwned { get; set; }
 
-        public StarboundServer(IPEndPoint endPoint, Guid id = default(Guid))
+        public StarboundServer(IPEndPoint endPoint)
         {
             EndPoint = endPoint;
-            if (id == default(Guid))
-                id = Guid.NewGuid();
-            else
-                Id = id;
+            Status = ServerStatus.Healthy;
+            CoordinatesOwned = new List<Coordinates3D>();
         }
     }
 }
