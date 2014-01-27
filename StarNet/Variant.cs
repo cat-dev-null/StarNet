@@ -26,7 +26,8 @@ namespace StarNet
                 throw new InvalidCastException(string.Format("Variants are unable to represent {0}.", value.GetType()));
             if (value.GetType() == typeof(uint) || value.GetType() == typeof(ushort) || value.GetType() == typeof(byte))
                 Value = (ulong)value;
-            Value = value;
+            else
+                Value = value;
         }
 
         public static Variant FromStream(StarboundStream stream)
