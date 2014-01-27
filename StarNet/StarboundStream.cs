@@ -177,8 +177,10 @@ namespace StarNet
             WriteUInt64((ulong)value);
         }
 
-        public byte[] ReadUInt8Array(int length)
+        public byte[] ReadUInt8Array()
         {
+            int discarded;
+            int length = (int)ReadVLQ(out discarded);
             var result = new byte[length];
             if (length == 0) return result;
             int n = length;
@@ -193,6 +195,7 @@ namespace StarNet
 
         public void WriteUInt8Array(byte[] value)
         {
+            WriteVLQ((ulong)value.Length);
             Write(value, 0, value.Length);
         }
 
@@ -201,18 +204,21 @@ namespace StarNet
             Write(value, offset, count);
         }
 
-        public sbyte[] ReadInt8Array(int length)
+        public sbyte[] ReadInt8Array()
         {
-            return (sbyte[])(Array)ReadUInt8Array(length);
+            return (sbyte[])(Array)ReadUInt8Array();
         }
 
         public void WriteInt8Array(sbyte[] value)
         {
+            WriteVLQ((ulong)value.Length);
             Write((byte[])(Array)value, 0, value.Length);
         }
 
-        public ushort[] ReadUInt16Array(int length)
+        public ushort[] ReadUInt16Array()
         {
+            int discarded;
+            int length = (int)ReadVLQ(out discarded);
             var result = new ushort[length];
             if (length == 0) return result;
             for (int i = 0; i < length; i++)
@@ -222,13 +228,14 @@ namespace StarNet
 
         public void WriteUInt16Array(ushort[] value)
         {
+            WriteVLQ((ulong)value.Length);
             for (int i = 0; i < value.Length; i++)
                 WriteUInt16(value[i]);
         }
 
         public short[] ReadInt16Array(int length)
         {
-            return (short[])(Array)ReadUInt16Array(length);
+            return (short[])(Array)ReadUInt16Array();
         }
 
         public void WriteInt16Array(short[] value)
@@ -236,8 +243,10 @@ namespace StarNet
             WriteUInt16Array((ushort[])(Array)value);
         }
 
-        public uint[] ReadUInt32Array(int length)
+        public uint[] ReadUInt32Array()
         {
+            int discarded;
+            int length = (int)ReadVLQ(out discarded);
             var result = new uint[length];
             if (length == 0) return result;
             for (int i = 0; i < length; i++)
@@ -251,9 +260,9 @@ namespace StarNet
                 WriteUInt32(value[i]);
         }
 
-        public int[] ReadInt32Array(int length)
+        public int[] ReadInt32Array()
         {
-            return (int[])(Array)ReadUInt32Array(length);
+            return (int[])(Array)ReadUInt32Array();
         }
 
         public void WriteInt32Array(int[] value)
@@ -261,8 +270,10 @@ namespace StarNet
             WriteUInt32Array((uint[])(Array)value);
         }
 
-        public ulong[] ReadUInt64Array(int length)
+        public ulong[] ReadUInt64Array()
         {
+            int discarded;
+            int length = (int)ReadVLQ(out discarded);
             var result = new ulong[length];
             if (length == 0) return result;
             for (int i = 0; i < length; i++)
@@ -272,17 +283,19 @@ namespace StarNet
 
         public void WriteUInt64Array(ulong[] value)
         {
+            WriteVLQ((ulong)value.Length);
             for (int i = 0; i < value.Length; i++)
                 WriteUInt64(value[i]);
         }
 
-        public long[] ReadInt64Array(int length)
+        public long[] ReadInt64Array()
         {
-            return (long[])(Array)ReadUInt64Array(length);
+            return (long[])(Array)ReadUInt64Array();
         }
 
         public void WriteInt64Array(long[] value)
         {
+            WriteVLQ((ulong)value.Length);
             WriteUInt64Array((ulong[])(Array)value);
         }
 
@@ -362,10 +375,7 @@ namespace StarNet
 
         public string ReadString()
         {
-            ushort length = ReadUInt16();
-            if (length == 0) return string.Empty;
-            var data = ReadUInt8Array(length * 2);
-            return StringEncoding.GetString(data);
+            return StringEncoding.GetString(ReadUInt8Array());
         }
 
         public void WriteString(string value)
