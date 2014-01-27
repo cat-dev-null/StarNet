@@ -375,6 +375,16 @@ namespace StarNet
                 WriteUInt8Array(StringEncoding.GetBytes(value));
         }
 
+        public Variant ReadVariant()
+        {
+            return Variant.FromStream(this);
+        }
+
+        public void WriteVariant(Variant variant)
+        {
+            variant.WriteTo(this);
+        }
+
         public static long ReadSignedVLQ(byte[] buffer, int index, out int length)
         {
             var vlq = ReadVLQ(buffer, index, out length);
