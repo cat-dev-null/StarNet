@@ -54,6 +54,7 @@
     <Compile Include="StarboundStream.cs" />
     <Compile Include="Variant.cs" />
     <Compile Include="Packets\ProtocolVersionPacket.cs" />
+    <Compile Include="PacketReader.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

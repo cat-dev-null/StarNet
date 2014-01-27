@@ -37,26 +37,27 @@ namespace StarNet
         private void AcceptClient(IAsyncResult result)
         {
             var socket = Listener.EndAcceptSocket(result);
-            Console.WriteLine("Got connection from {0}", socket.RemoteEndPoint);
+            Console.WriteLine("New connection from {0}", socket.RemoteEndPoint);
             var client = new StarboundClient(socket);
             Clients.Add(client);
-            client.NetworkBuffer = new byte[ClientBufferLength];
             client.PacketQueue.Enqueue(new ProtocolVersionPacket(ProtocolVersion));
             client.FlushPackets();
-            client.Socket.BeginReceive(client.NetworkBuffer, 0, ClientBufferLength, SocketFlags.None, ClientDataReceived, client);
+            client.Socket.BeginReceive(client.PacketReader.NetworkBuffer, 0, client.PacketReader.NetworkBuffer.Length,
+                SocketFlags.None, ClientDataReceived, client);
         }
 
         private void ClientDataReceived(IAsyncResult result)
         {
             var client = (StarboundClient)result.AsyncState;
-            Console.WriteLine("Got data from " + client.Socket.RemoteEndPoint);
             var length = client.Socket.EndReceive(result);
-            var packets = client.UpdateBuffer(length);
+            var packets = client.PacketReader.UpdateBuffer(length);
             if (packets != null && packets.Length > 0)
             {
-                // TODO: Handle packets
+                foreach (var packet in packets)
+                    Console.WriteLine("Received {1} ({0}) from {2}", packet.PacketId, packet.GetType().Name, client.Socket.RemoteEndPoint);
             }
-            client.Socket.BeginReceive(client.NetworkBuffer, 0, ClientBufferLength, SocketFlags.None, ClientDataReceived, client);
+            client.Socket.BeginReceive(client.PacketReader.NetworkBuffer, 0, client.PacketReader.NetworkBuffer.Length,
+                SocketFlags.None, ClientDataReceived, client);
         }
 
         private void NetworkMessageReceived(IAsyncResult result)
