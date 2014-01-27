@@ -8,6 +8,15 @@ namespace StarNet
 {
     public class PacketReader
     {
+        delegate IPacket CreatePacketInstance();
+        static Dictionary<byte, CreatePacketInstance> PacketFactories;
+
+        static PacketReader()
+        {
+            PacketFactories = new Dictionary<byte, CreatePacketInstance>();
+            PacketFactories[6] = () => new ClientConnectPacket();
+        }
+
         public readonly int MaxPacketLength = 1048576; // 1 MB (compressed, if applicable)
         public readonly int MaxInflatedPacketLength = 10485760; // 10 MB
         public readonly int NetworkBufferLength = 1024;
@@ -81,13 +90,16 @@ namespace StarNet
 
         public IPacket[] Decode(byte packetId, byte[] payload)
         {
-            // TODO: Decode packets to specific packet classes
             var memoryStream = new MemoryStream(payload);
             var stream = new StarboundStream(memoryStream);
             List<IPacket> packets = new List<IPacket>();
             while (stream.Position < stream.Length)
             {
-                IPacket packet = new UnhandledPacket(Compressed, payload.Length, packetId);
+                IPacket packet;
+                if (PacketFactories.ContainsKey(packetId))
+                    packet = PacketFactories[packetId]();
+                else
+                    packet = new UnhandledPacket(Compressed, payload.Length, packetId);
                 packet.Read(stream);
                 packets.Add(packet);
             }

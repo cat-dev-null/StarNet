@@ -395,7 +395,7 @@ namespace StarNet
             }
             if (i == buffer.Length)
                 throw new IndexOutOfRangeException("VLQ exceeds maximum allowable length.");
-            return ReadVLQ(buffer, i + 1, out length);
+            return ReadVLQ(buffer, 0, out length);
         }
 
         public long ReadSignedVLQ(out int length)

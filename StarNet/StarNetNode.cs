@@ -32,6 +32,7 @@ namespace StarNet
             Listener.Start();
             Listener.BeginAcceptSocket(AcceptClient, null);
             NetworkClient.BeginReceive(NetworkMessageReceived, null);
+            Console.WriteLine("Listening on " + Listener.LocalEndpoint);
             // TODO: Log into the network
         }
 
@@ -55,7 +56,14 @@ namespace StarNet
             if (packets != null && packets.Length > 0)
             {
                 foreach (var packet in packets)
+                {
                     Console.WriteLine("Received {1} ({0}) from {2}", packet.PacketId, packet.GetType().Name, client.Socket.RemoteEndPoint);
+                    if (packet is ClientConnectPacket)
+                    {
+                        var clientConnectPacket = packet as ClientConnectPacket;
+                        Console.WriteLine("Connection from " + clientConnectPacket.PlayerName);
+                    }
+                }
             }
             client.Socket.BeginReceive(client.PacketReader.NetworkBuffer, 0, client.PacketReader.NetworkBuffer.Length,
                 SocketFlags.None, ClientDataReceived, client);
