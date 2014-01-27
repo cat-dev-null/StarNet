@@ -53,6 +53,7 @@
     <Compile Include="Packets\IPacket.cs" />
     <Compile Include="StarboundStream.cs" />
     <Compile Include="Variant.cs" />
+    <Compile Include="Packets\ProtocolVersionPacket.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

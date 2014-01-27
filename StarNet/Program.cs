@@ -10,7 +10,7 @@ namespace StarNet
     {
         public static void Main(string[] args)
         {
-            var localNode = new StarNetNode(new IPEndPoint(IPAddress.Any, 21025));
+            var localNode = new StarNetNode(new IPEndPoint(IPAddress.Any, 21024)); // TODO: Let this be configurable?
             localNode.Start();
             while (true)
                 Thread.Sleep(10000);

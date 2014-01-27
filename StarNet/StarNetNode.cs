@@ -9,6 +9,7 @@ namespace StarNet
     {
         public const int NetworkPort = 21024;
         public const int ClientBufferLength = 1024;
+        public const int ProtocolVersion = 635;
 
         public TcpListener Listener { get; set; }
         public UdpClient NetworkClient { get; set; }
@@ -27,32 +28,35 @@ namespace StarNet
 
         public void Start()
         {
-            Listener.BeginAcceptTcpClient(AcceptClient, null);
+            Listener.Start();
+            Listener.BeginAcceptSocket(AcceptClient, null);
             NetworkClient.BeginReceive(NetworkMessageReceived, null);
             // TODO: Log into the network
         }
 
         private void AcceptClient(IAsyncResult result)
         {
-            var tcpClient = Listener.EndAcceptTcpClient(result);
-            var client = new StarboundClient(tcpClient);
+            var socket = Listener.EndAcceptSocket(result);
+            Console.WriteLine("Got connection from {0}", socket.RemoteEndPoint);
+            var client = new StarboundClient(socket);
             Clients.Add(client);
-            HandleClient(client);
+            client.NetworkBuffer = new byte[ClientBufferLength];
+            client.PacketQueue.Enqueue(new ProtocolVersionPacket(ProtocolVersion));
+            client.FlushPackets();
+            client.Socket.BeginReceive(client.NetworkBuffer, 0, ClientBufferLength, SocketFlags.None, ClientDataReceived, client);
         }
 
-        private async void HandleClient(StarboundClient client)
+        private void ClientDataReceived(IAsyncResult result)
         {
-            client.NetworkBuffer = new byte[ClientBufferLength];
-            var stream = client.Client.GetStream();
-            while (true)
+            var client = (StarboundClient)result.AsyncState;
+            Console.WriteLine("Got data from " + client.Socket.RemoteEndPoint);
+            var length = client.Socket.EndReceive(result);
+            var packets = client.UpdateBuffer(length);
+            if (packets != null && packets.Length > 0)
             {
-                var length = await stream.ReadAsync(client.NetworkBuffer, 0, ClientBufferLength);
-                var packets = client.UpdateBuffer(length);
-                if (packets != null && packets.Length > 0)
-                {
-                    // TODO: Handle packets
-                }
+                // TODO: Handle packets
             }
+            client.Socket.BeginReceive(client.NetworkBuffer, 0, ClientBufferLength, SocketFlags.None, ClientDataReceived, client);
         }
 
         private void NetworkMessageReceived(IAsyncResult result)

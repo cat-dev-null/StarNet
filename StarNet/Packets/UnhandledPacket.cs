@@ -5,18 +5,29 @@ namespace StarNet.Packets
 {
     public class UnhandledPacket : IPacket
     {
-        public UnhandledPacket()
+        public byte PacketId { get; set; }
+        public bool Compressed { get; set; }
+        public byte[] Data { get; set; }
+        private int Length { get; set; }
+
+        public UnhandledPacket(bool compressed, int length, byte packetId)
         {
+            Compressed = compressed;
+            Length = length;
+            Data = new byte[Length];
+            PacketId = packetId;
         }
 
-        public void Read(BinaryReader reader)
+        public int Read(StarboundStream stream)
         {
-            throw new NotImplementedException();
+            stream.Read(Data, 0, Data.Length);
+            return Data.Length;
         }
 
-        public void Write(BinaryWriter writer)
+        public bool Write(StarboundStream stream)
         {
-            throw new NotImplementedException();
+            stream.Write(Data, 0, Data.Length);
+            return Compressed;
         }
     }
 }

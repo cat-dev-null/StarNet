@@ -11,7 +11,7 @@ namespace StarNet
 {
     public class StarboundClient
     {
-        public TcpClient Client { get; set; }
+        public Socket Socket { get; set; }
         public ConcurrentQueue<IPacket> PacketQueue { get; set; }
         public StarboundServer CurrentServer { get; set; }
         public const int MaxPacketLength = 1048576; // 1 MB (compressed, if applicable)
@@ -24,15 +24,45 @@ namespace StarNet
         private int DataIndex = 0;
         private bool Compressed = false;
 
-        public StarboundClient(TcpClient client)
+        public StarboundClient(Socket socket)
         {
-            Client = client;
+            Socket = socket;
             PacketQueue = new ConcurrentQueue<IPacket>();
+        }
+
+        public void FlushPackets()
+        {
+            while (PacketQueue.Count > 0)
+            {
+                IPacket next;
+                while (!PacketQueue.TryDequeue(out next)) ;
+                var memoryStream = new MemoryStream();
+                var stream = new StarboundStream(memoryStream);
+                var compressed = next.Write(stream);
+                byte[] buffer = new byte[stream.Position];
+                Array.Copy(memoryStream.GetBuffer(), buffer, buffer.Length);
+                int length = buffer.Length;
+                if (compressed)
+                {
+                    buffer = ZlibStream.CompressBuffer(buffer);
+                    length = -buffer.Length;
+                }
+                byte[] header = new byte[StarboundStream.GetSignedVLQLength(length) + 1];
+                header[0] = next.PacketId;
+                int discarded;
+                StarboundStream.WriteSignedVLQ(header, 1, length, out discarded);
+                Console.WriteLine("Sending packet {0} (length: {1}) to {2}", next.PacketId, length, Socket.RemoteEndPoint);
+                Socket.Send(header);
+                Socket.Send(buffer);
+                Console.WriteLine("Sent.");
+            }
         }
 
         internal IPacket[] UpdateBuffer(int length)
         {
-            int index = PacketBuffer.Length - 1;
+            if (length == 0)
+                return null; // TODO: This is probably a network error, handle it appropriately
+            int index = PacketBuffer.Length;
             if (WorkingLength == long.MaxValue)
             {
                 // We don't know the length of the packet yet, so keep going
@@ -64,7 +94,8 @@ namespace StarNet
             else
             {
                 if (PacketBuffer.Length < index + length)
-                    Array.Copy(NetworkBuffer, 0, PacketBuffer, index, length);
+                    Array.Resize(ref PacketBuffer, index + length);
+                Array.Copy(NetworkBuffer, 0, PacketBuffer, index, length);
                 if (PacketBuffer.Length >= WorkingLength + DataIndex)
                 {
                     // Ready to decode packet
