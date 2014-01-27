@@ -18,10 +18,9 @@ namespace StarNet.Packets
             PacketId = packetId;
         }
 
-        public int Read(StarboundStream stream)
+        public void Read(StarboundStream stream)
         {
             stream.Read(Data, 0, Data.Length);
-            return Data.Length;
         }
 
         public bool Write(StarboundStream stream)

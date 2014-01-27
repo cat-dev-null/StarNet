@@ -18,14 +18,13 @@ namespace StarNet.Packets
         {
         }
 
-        public int Read(StarboundStream stream)
+        public void Read(StarboundStream stream)
         {
             AssetDigest = stream.ReadUInt8Array();
             Claim = stream.ReadVariant();
             bool uuid = stream.ReadBoolean();
             if (uuid)
                 UUID = stream.ReadUInt8Array();
-            return 0;
         }
 
         public bool Write(StarboundStream stream)

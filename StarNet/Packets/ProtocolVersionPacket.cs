@@ -14,10 +14,9 @@ namespace StarNet.Packets
             ProtocolVersion = protocolVersion;
         }
 
-        public int Read(StarboundStream stream)
+        public void Read(StarboundStream stream)
         {
             ProtocolVersion = stream.ReadUInt32();
-            return 4;
         }
 
         public bool Write(StarboundStream stream)

@@ -2,6 +2,7 @@ using System;
 using StarNet.Packets;
 using Ionic.Zlib;
 using System.IO;
+using System.Collections.Generic;
 
 namespace StarNet
 {
@@ -83,9 +84,14 @@ namespace StarNet
             // TODO: Decode packets to specific packet classes
             var memoryStream = new MemoryStream(payload);
             var stream = new StarboundStream(memoryStream);
-            IPacket packet = new UnhandledPacket(Compressed, payload.Length, packetId);
-            packet.Read(stream);
-            return new[] { packet };
+            List<IPacket> packets = new List<IPacket>();
+            while (stream.Position < stream.Length)
+            {
+                IPacket packet = new UnhandledPacket(Compressed, payload.Length, packetId);
+                packet.Read(stream);
+                packets.Add(packet);
+            }
+            return packets.ToArray();
         }
     }
 }
