@@ -7,8 +7,12 @@ namespace StarNet
         public static long ReadSignedVLQ(byte[] buffer, int index, out int length)
         {
             var vlq = ReadVLQ(buffer, index, out length);
-            vlq += 1;
+            bool negative = vlq % 2 == 1;
+            if (negative)
+                vlq += 1;
             vlq /= 2;
+            if (negative)
+                return -(long)vlq;
             return (long)vlq;
         }
 
