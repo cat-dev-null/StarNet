@@ -181,6 +181,11 @@ namespace StarNet
         {
             int discarded;
             int length = (int)ReadVLQ(out discarded);
+            return ReadUInt8Array(length);
+        }
+
+        public byte[] ReadUInt8Array(int length)
+        {
             var result = new byte[length];
             if (length == 0) return result;
             int n = length;
@@ -193,15 +198,11 @@ namespace StarNet
             return result;
         }
 
-        public void WriteUInt8Array(byte[] value)
+        public void WriteUInt8Array(byte[] value, bool includeLength = true)
         {
-            WriteVLQ((ulong)value.Length);
+            if (includeLength)
+                WriteVLQ((ulong)value.Length);
             Write(value, 0, value.Length);
-        }
-
-        public void WriteUInt8Array(byte[] value, int offset, int count)
-        {
-            Write(value, offset, count);
         }
 
         public sbyte[] ReadInt8Array()
@@ -209,9 +210,15 @@ namespace StarNet
             return (sbyte[])(Array)ReadUInt8Array();
         }
 
-        public void WriteInt8Array(sbyte[] value)
+        public sbyte[] ReadInt8Array(int length)
         {
-            WriteVLQ((ulong)value.Length);
+            return (sbyte[])(Array)ReadUInt8Array(length);
+        }
+
+        public void WriteInt8Array(sbyte[] value, bool includeLength)
+        {
+            if (includeLength)
+                WriteVLQ((ulong)value.Length);
             Write((byte[])(Array)value, 0, value.Length);
         }
 
@@ -219,6 +226,11 @@ namespace StarNet
         {
             int discarded;
             int length = (int)ReadVLQ(out discarded);
+            return ReadUInt16Array(length);
+        }
+
+        public ushort[] ReadUInt16Array(int length)
+        {
             var result = new ushort[length];
             if (length == 0) return result;
             for (int i = 0; i < length; i++)
@@ -226,27 +238,38 @@ namespace StarNet
             return result;
         }
 
-        public void WriteUInt16Array(ushort[] value)
+        public void WriteUInt16Array(ushort[] value, bool includeLength = true)
         {
-            WriteVLQ((ulong)value.Length);
+            if (includeLength)
+                WriteVLQ((ulong)value.Length);
             for (int i = 0; i < value.Length; i++)
                 WriteUInt16(value[i]);
         }
 
-        public short[] ReadInt16Array(int length)
+        public short[] ReadInt16Array()
         {
             return (short[])(Array)ReadUInt16Array();
         }
 
-        public void WriteInt16Array(short[] value)
+        public short[] ReadInt16Array(int length)
         {
-            WriteUInt16Array((ushort[])(Array)value);
+            return (short[])(Array)ReadUInt16Array(length);
+        }
+
+        public void WriteInt16Array(short[] value, bool includeLength = true)
+        {
+            WriteUInt16Array((ushort[])(Array)value, includeLength);
         }
 
         public uint[] ReadUInt32Array()
         {
             int discarded;
             int length = (int)ReadVLQ(out discarded);
+            return ReadUInt32Array(length);
+        }
+
+        public uint[] ReadUInt32Array(int length)
+        {
             var result = new uint[length];
             if (length == 0) return result;
             for (int i = 0; i < length; i++)
@@ -254,8 +277,10 @@ namespace StarNet
             return result;
         }
 
-        public void WriteUInt32Array(uint[] value)
+        public void WriteUInt32Array(uint[] value, bool includeLength = true)
         {
+            if (includeLength)
+                WriteVLQ((ulong)value.Length);
             for (int i = 0; i < value.Length; i++)
                 WriteUInt32(value[i]);
         }
@@ -265,15 +290,25 @@ namespace StarNet
             return (int[])(Array)ReadUInt32Array();
         }
 
-        public void WriteInt32Array(int[] value)
+        public int[] ReadInt32Array(int length)
         {
-            WriteUInt32Array((uint[])(Array)value);
+            return (int[])(Array)ReadUInt32Array(length);
+        }
+
+        public void WriteInt32Array(int[] value, bool includeLength = true)
+        {
+            WriteUInt32Array((uint[])(Array)value, includeLength);
         }
 
         public ulong[] ReadUInt64Array()
         {
             int discarded;
             int length = (int)ReadVLQ(out discarded);
+            return ReadUInt64Array(length);
+        }
+
+        public ulong[] ReadUInt64Array(int length)
+        {
             var result = new ulong[length];
             if (length == 0) return result;
             for (int i = 0; i < length; i++)
@@ -281,9 +316,10 @@ namespace StarNet
             return result;
         }
 
-        public void WriteUInt64Array(ulong[] value)
+        public void WriteUInt64Array(ulong[] value, bool includeLength = true)
         {
-            WriteVLQ((ulong)value.Length);
+            if (includeLength)
+                WriteVLQ((ulong)value.Length);
             for (int i = 0; i < value.Length; i++)
                 WriteUInt64(value[i]);
         }
@@ -293,10 +329,14 @@ namespace StarNet
             return (long[])(Array)ReadUInt64Array();
         }
 
-        public void WriteInt64Array(long[] value)
+        public long[] ReadInt64Array(int length)
         {
-            WriteVLQ((ulong)value.Length);
-            WriteUInt64Array((ulong[])(Array)value);
+            return (long[])(Array)ReadUInt64Array(length);
+        }
+
+        public void WriteInt64Array(long[] value, bool includeLength = true)
+        {
+            WriteUInt64Array((ulong[])(Array)value, includeLength);
         }
 
         public unsafe float ReadSingle()

@@ -1,7 +1,7 @@
 using System;
 using StarNet.Packets;
 
-namespace StarNet
+namespace StarNet.Packets
 {
     public class ProtocolVersionPacket : IPacket
     {
