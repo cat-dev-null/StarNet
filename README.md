@@ -2,21 +2,20 @@
 
 A Starbound multiplayer network.
 
-## Technical Info
+Think IRC, but for Starbound. The goal is to enable MMO-style gameplay with thousands of players in the
+same universe. There are a number of lightweight orchestrators (this repository is that software) in
+the network. When a player connects to the universe, they are assigned an orchestrator by means of a DNS
+round-robin. That orchestrator then connects them to a server (as a proxy). Servers manage one or more
+star systems. They are selected by the orchestrators with respect to their current load when a new star
+system needs to be assigned.
 
-**How does it work?**
+Orchestrators are responsible for:
 
-It's basically IRC, for Starbound. The goal is to enable MMO-style gameplay with thousands of players
-in the same universe. There are a number of lightweight load-balancers that handle connections directly,
-and that facilitate communication with a number of game servers. Each game server runs some number of
-planets and plays host to several users. These servers can run on the stock Starbound server software,
-or potentially third party servers if anyone ever writes some. The load balancers (StarNet servers,
-that's what this repo is) are responsible for delegating planets to servers based on their ability to
-cope with the load, and they handle a few other things. Distributing between load balancers is a simple
-DNS round-robin.
+* All connections go through an orchestrator
+* Moving players between servers and star systems
+* Chat between star systems
+* A few other things
 
-Things to think about:
-
-* Redundancy, where do we keep planets when servers go down?
-* Who gets to run a server?
-* What happens to malicious nodes?
+Each server can be run by the official server software, or (presumably) any alternatives, if alternatives
+are ever written. In a perfect world, anyone can contribute a server to the network, but I'm not sure
+about how that would work out.

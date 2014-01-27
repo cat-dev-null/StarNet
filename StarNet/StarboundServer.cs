@@ -7,11 +7,12 @@ namespace StarNet
     {
         public Guid Id { get; set; }
         public IPEndPoint EndPoint { get; set; }
+        public int TotalPlayers { get; set; }
 
-        public StarboundServer(IPEndPoint endPoint, Guid id = Guid.Empty)
+        public StarboundServer(IPEndPoint endPoint, Guid id = default(Guid))
         {
             EndPoint = endPoint;
-            if (id == Guid.Empty)
+            if (id == default(Guid))
                 id = Guid.NewGuid();
             else
                 Id = id;
