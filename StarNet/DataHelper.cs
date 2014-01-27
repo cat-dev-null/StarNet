@@ -61,8 +61,6 @@ namespace StarNet
 
         public static void WriteVLQ(byte[] buffer, int index, ulong value, out int length)
         {
-            if (value == 129)
-                Console.Write("");
             value <<= 1;
             int actualLength = 56;
             while (actualLength > 0)
