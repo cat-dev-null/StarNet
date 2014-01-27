@@ -117,7 +117,7 @@ namespace StarNet
         {
             // TODO: Actually decode packets
             var memoryStream = new MemoryStream(packet);
-            var stream = new BinaryReader(memoryStream); // TODO: Write a big endian BinaryReader (can probably rip off Craft.Net)
+            var stream = new StarboundStream(memoryStream);
             Console.WriteLine("Got packet {0}, length: {1} bytes", packetId, packet.Length);
             return null;
         }
