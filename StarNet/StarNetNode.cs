@@ -47,7 +47,11 @@ namespace StarNet
             while (true)
             {
                 var length = await stream.ReadAsync(client.NetworkBuffer, 0, ClientBufferLength);
-                client.UpdateBuffer(length);
+                var packets = client.UpdateBuffer(length);
+                if (packets != null && packets.Length > 0)
+                {
+                    // TODO: Handle packets
+                }
             }
         }
 

@@ -21,6 +21,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>full</DebugType>
@@ -30,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
     <PlatformTarget>x86</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -43,12 +45,16 @@
     <Compile Include="StarboundClient.cs" />
     <Compile Include="ServerPool.cs" />
     <Compile Include="RemoteNode.cs" />
-    <Compile Include="IPacket.cs" />
     <Compile Include="StarboundServer.cs" />
     <Compile Include="ServerStatus.cs" />
     <Compile Include="StarNetNode.cs" />
     <Compile Include="Coordinates.cs" />
-    <Compile Include="DataHelper.cs" />
+    <Compile Include="Packets\UnhandledPacket.cs" />
+    <Compile Include="Packets\IPacket.cs" />
+    <Compile Include="StarboundStream.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Packets\" />
+  </ItemGroup>
 </Project>

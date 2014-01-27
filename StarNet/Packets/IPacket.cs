@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace StarNet
+namespace StarNet.Packets
 {
     public interface IPacket
     {

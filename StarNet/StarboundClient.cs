@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.IO;
 using Ionic.Zlib;
+using StarNet.Packets;
 
 namespace StarNet
 {
@@ -29,7 +30,7 @@ namespace StarNet
             PacketQueue = new ConcurrentQueue<IPacket>();
         }
 
-        internal void UpdateBuffer(int length)
+        internal IPacket[] UpdateBuffer(int length)
         {
             int index = PacketBuffer.Length - 1;
             if (WorkingLength == long.MaxValue)
@@ -46,7 +47,7 @@ namespace StarNet
                     {
                         if ((PacketBuffer[i] & 0x80) == 0)
                         {
-                            WorkingLength = DataHelper.ReadSignedVLQ(PacketBuffer, 1, out DataIndex);
+                            WorkingLength = StarboundStream.ReadSignedVLQ(PacketBuffer, 1, out DataIndex);
                             DataIndex++;
                             Compressed = WorkingLength < 0;
                             if (Compressed)
@@ -71,20 +72,23 @@ namespace StarNet
                     Array.Copy(PacketBuffer, DataIndex, data, 0, WorkingLength);
                     if (Compressed)
                         data = ZlibStream.UncompressBuffer(data); // TODO: Prevent compressed packets from exceeding MaxInflatedPacketLength
-                    Decode(PacketBuffer[0], data);
+                    var packets = Decode(PacketBuffer[0], data);
                     Array.Copy(PacketBuffer, DataIndex + WorkingLength, PacketBuffer, 0, PacketBuffer.Length - (DataIndex + WorkingLength));
                     Array.Resize(ref PacketBuffer, (int)(PacketBuffer.Length - (DataIndex + WorkingLength)));
                     WorkingLength = long.MaxValue;
+                    return packets;
                 }
             }
+            return null;
         }
 
-        public void Decode(byte packetId, byte[] packet)
+        public IPacket[] Decode(byte packetId, byte[] packet)
         {
             // TODO: Actually decode packets
             var memoryStream = new MemoryStream(packet);
             var stream = new BinaryReader(memoryStream); // TODO: Write a big endian BinaryReader (can probably rip off Craft.Net)
             Console.WriteLine("Got packet {0}, length: {1} bytes", packetId, packet.Length);
+            return null;
         }
     }
 }
