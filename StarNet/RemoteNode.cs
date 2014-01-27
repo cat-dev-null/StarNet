@@ -5,8 +5,8 @@ using System.Net;
 
 namespace StarNet
 {
-	public class RemoteNode
-	{
+    public class RemoteNode
+    {
         public Guid Id { get; set; }
         public IPEndPoint EndPoint { get; set; }
 
@@ -18,5 +18,5 @@ namespace StarNet
             else
                 Id = id;
         }
-	}
+    }
 }

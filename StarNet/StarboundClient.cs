@@ -8,8 +8,8 @@ using Ionic.Zlib;
 
 namespace StarNet
 {
-	public class StarboundClient
-	{
+    public class StarboundClient
+    {
         public TcpClient Client { get; set; }
         public ConcurrentQueue<IPacket> PacketQueue { get; set; }
         public StarboundServer CurrentServer { get; set; }
@@ -86,5 +86,5 @@ namespace StarNet
             var stream = new BinaryReader(memoryStream); // TODO: Write a big endian BinaryReader (can probably rip off Craft.Net)
             Console.WriteLine("Got packet {0}, length: {1} bytes", packetId, packet.Length);
         }
-	}
+    }
 }
