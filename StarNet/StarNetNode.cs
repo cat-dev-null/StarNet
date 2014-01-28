@@ -68,7 +68,7 @@ namespace StarNet
         {
             IPEndPoint endPoint = default(IPEndPoint);
             var message = NetworkClient.EndReceive(result, ref endPoint);
-            // TODO
+            Console.WriteLine("Got a network message, which is weird, because we don't have a network yet. Length: " + message.Length);
         }
     }
 }

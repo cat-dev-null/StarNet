@@ -39,6 +39,15 @@
       <HintPath>..\lib\Ionic.Zip.Reduced.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Data.Sqlite" />
+    <Reference Include="FluentNHibernate">
+      <HintPath>..\lib\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\lib\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\lib\NHibernate.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
