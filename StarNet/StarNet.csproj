@@ -38,6 +38,7 @@
     <Reference Include="Ionic.Zip.Reduced">
       <HintPath>..\lib\Ionic.Zip.Reduced.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Data.Sqlite" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -48,17 +49,18 @@
     <Compile Include="StarboundServer.cs" />
     <Compile Include="ServerStatus.cs" />
     <Compile Include="StarNetNode.cs" />
-    <Compile Include="Coordinates.cs" />
     <Compile Include="Packets\UnhandledPacket.cs" />
     <Compile Include="Packets\IPacket.cs" />
-    <Compile Include="StarboundStream.cs" />
-    <Compile Include="Variant.cs" />
     <Compile Include="Packets\ProtocolVersionPacket.cs" />
     <Compile Include="PacketReader.cs" />
     <Compile Include="Packets\ClientConnectPacket.cs" />
+    <Compile Include="Common\Coordinates.cs" />
+    <Compile Include="Common\Variant.cs" />
+    <Compile Include="Common\StarboundStream.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Packets\" />
+    <Folder Include="Common\" />
   </ItemGroup>
 </Project>

@@ -3,6 +3,7 @@ using StarNet.Packets;
 using Ionic.Zlib;
 using System.IO;
 using System.Collections.Generic;
+using StarNet.Common;
 
 namespace StarNet
 {

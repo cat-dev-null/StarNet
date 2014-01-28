@@ -58,11 +58,6 @@ namespace StarNet
                 foreach (var packet in packets)
                 {
                     Console.WriteLine("Received {1} ({0}) from {2}", packet.PacketId, packet.GetType().Name, client.Socket.RemoteEndPoint);
-                    if (packet is ClientConnectPacket)
-                    {
-                        var clientConnectPacket = packet as ClientConnectPacket;
-                        Console.WriteLine("Connection from " + clientConnectPacket.PlayerName);
-                    }
                 }
             }
             client.Socket.BeginReceive(client.PacketReader.NetworkBuffer, 0, client.PacketReader.NetworkBuffer.Length,

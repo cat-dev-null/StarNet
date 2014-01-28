@@ -1,5 +1,6 @@
 using System;
 using StarNet.Packets;
+using StarNet.Common;
 
 namespace StarNet.Packets
 {

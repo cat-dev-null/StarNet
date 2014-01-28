@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace StarNet
+namespace StarNet.Common
 {
     public class StarboundStream : Stream
     {

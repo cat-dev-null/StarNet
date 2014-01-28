@@ -6,6 +6,7 @@ using System.Net;
 using System.IO;
 using Ionic.Zlib;
 using StarNet.Packets;
+using StarNet.Common;
 
 namespace StarNet
 {
@@ -15,6 +16,10 @@ namespace StarNet
         public ConcurrentQueue<IPacket> PacketQueue { get; set; }
         public StarboundServer CurrentServer { get; set; }
         public PacketReader PacketReader { get; set; }
+        public byte[] Shipworld { get; set; }
+        public string PlayerName { get; set; }
+        public string Species { get; set; }
+        public string Account { get; set; }
 
         public StarboundClient(Socket socket)
         {
