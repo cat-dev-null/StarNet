@@ -49,7 +49,6 @@ namespace StarNet
                 header[0] = next.PacketId;
                 int discarded;
                 StarboundStream.WriteSignedVLQ(header, 1, length, out discarded);
-                Console.WriteLine("Sending {0} ({1}) to {2}", next.GetType().Name, next.PacketId, Socket.RemoteEndPoint);
                 Socket.Send(header);
                 Socket.Send(buffer);
             }

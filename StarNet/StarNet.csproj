@@ -75,6 +75,7 @@
     <Compile Include="Database\LocalSettings.cs" />
     <Compile Include="Database\Mappings\LocalSettingsMap.cs" />
     <Compile Include="Common\StarboundSector.cs" />
+    <Compile Include="ClientHandlers\LoginHandlers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -82,5 +83,6 @@
     <Folder Include="Common\" />
     <Folder Include="Database\" />
     <Folder Include="Database\Mappings\" />
+    <Folder Include="ClientHandlers\" />
   </ItemGroup>
 </Project>

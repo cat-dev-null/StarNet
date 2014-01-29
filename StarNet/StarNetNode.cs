@@ -6,6 +6,7 @@ using StarNet.Packets;
 using StarNet.Database;
 using NHibernate.Linq;
 using System.Linq;
+using StarNet.ClientHandlers;
 
 namespace StarNet
 {
@@ -31,6 +32,12 @@ namespace StarNet
             Clients = new List<StarboundClient>();
             NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, NetworkPort));
             LoadDatabase();
+            RegisterHandlers();
+        }
+
+        private void RegisterHandlers()
+        {
+            LoginHandlers.Register();
         }
 
         private void LoadDatabase()
@@ -82,9 +89,7 @@ namespace StarNet
             if (packets != null && packets.Length > 0)
             {
                 foreach (var packet in packets)
-                {
-                    Console.WriteLine("Received {1} ({0}) from {2}", packet.PacketId, packet.GetType().Name, client.Socket.RemoteEndPoint);
-                }
+                    PacketReader.HandlePacket(this, client, packet);
             }
             client.Socket.BeginReceive(client.PacketReader.NetworkBuffer, 0, client.PacketReader.NetworkBuffer.Length,
                 SocketFlags.None, ClientDataReceived, client);

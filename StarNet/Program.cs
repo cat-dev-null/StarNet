@@ -12,12 +12,19 @@ namespace StarNet
     {
         public static void Main(string[] args)
         {
-            var database = new StarNetDatabase("node.db");
-            var localNode = new StarNetNode(database, new IPEndPoint(IPAddress.Any, 21024)); // TODO: Let this be configurable?
-            Console.WriteLine("Starting node {0}", localNode.Id);
-            localNode.Start();
-            while (true)
-                Thread.Sleep(10000);
+            if (args.Length != 0)
+            {
+                // Run some sort of command
+            }
+            else
+            {
+                var database = new StarNetDatabase("node.db");
+                var localNode = new StarNetNode(database, new IPEndPoint(IPAddress.Any, 21024)); // TODO: Let this be configurable?
+                Console.WriteLine("Starting node {0}", localNode.Id);
+                localNode.Start();
+                while (true)
+                    Thread.Sleep(10000);
+            }
         }
     }
 }

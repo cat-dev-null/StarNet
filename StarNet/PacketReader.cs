@@ -9,13 +9,28 @@ namespace StarNet
 {
     public class PacketReader
     {
+        public delegate void PacketHandler(StarNetNode node, StarboundClient client, IPacket packet);
         delegate IPacket CreatePacketInstance();
         static Dictionary<byte, CreatePacketInstance> PacketFactories;
+        static Dictionary<byte, PacketHandler> PacketHandlers;
 
         static PacketReader()
         {
             PacketFactories = new Dictionary<byte, CreatePacketInstance>();
-            PacketFactories[6] = () => new ClientConnectPacket();
+            PacketFactories[ClientConnectPacket.Id] = () => new ClientConnectPacket();
+
+            PacketHandlers = new Dictionary<byte, PacketHandler>();
+        }
+
+        public static void RegisterPacketHandler(byte packetId, PacketHandler handler)
+        {
+            PacketHandlers[packetId] = handler;
+        }
+
+        public static void HandlePacket(StarNetNode node, StarboundClient client, IPacket packet)
+        {
+            if (PacketHandlers.ContainsKey(packet.PacketId))
+                PacketHandlers[packet.PacketId](node, client, packet);
         }
 
         public readonly int MaxPacketLength = 1048576; // 1 MB (compressed, if applicable)
