@@ -5,21 +5,23 @@ using NHibernate;
 using NHibernate.Cfg;
 using System.IO;
 using NHibernate.Tool.hbm2ddl;
+using StarNet.Database.Mappings;
 
 namespace StarNet.Database
 {
-    public class StarNetDatabase
+    public class SharedDatabase
     {
         public ISessionFactory SessionFactory { get; set; }
 
-        public StarNetDatabase(string databaseFile)
+        public SharedDatabase(string connectionString)
         {
-            var config = MonoSQLiteConfiguration.Standard.UsingFile(databaseFile);
+            var config = PostgreSQLConfiguration.Standard.ConnectionString("");
             SessionFactory = Fluently.Configure()
                 .Database(config)
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<StarNetDatabase>())
-                .ExposeConfiguration(BuildSchema)
-                .BuildSessionFactory();
+                    .Mappings(m => m.FluentMappings.Add<UserMap>())
+                    .Mappings(m => m.FluentMappings.Add<CharacterMap>())
+                    .ExposeConfiguration(BuildSchema)
+                    .BuildSessionFactory();
         }
 
         private void BuildSchema(Configuration config)

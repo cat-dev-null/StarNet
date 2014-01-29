@@ -17,7 +17,7 @@ namespace StarNet
         public const int ProtocolVersion = 636;
         public const int NodeVersion = 1;
 
-        public StarNetDatabase Database { get; set; }
+        public NodeDatabase Database { get; set; }
         public TcpListener Listener { get; set; }
         public UdpClient NetworkClient { get; set; }
         public List<StarboundClient> Clients { get; set; }
@@ -25,7 +25,7 @@ namespace StarNet
         public RemoteNode Siblings { get; set; }
         public Guid Id { get; set; }
 
-        public StarNetNode(StarNetDatabase database, IPEndPoint endpoint)
+        public StarNetNode(NodeDatabase database, IPEndPoint endpoint)
         {
             Database = database;
             Listener = new TcpListener(endpoint);
