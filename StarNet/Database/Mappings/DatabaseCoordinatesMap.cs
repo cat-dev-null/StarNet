@@ -8,9 +8,9 @@ namespace StarNet.Database.Mappings
         public DatabaseCoordinatesMap()
         {
             Id(m => m.Id);
+            Map(m => m.Sector);
             Map(m => m.X);
             Map(m => m.Y);
-            References(m => m.Server);
         }
     }
 }

@@ -12,8 +12,9 @@ namespace StarNet.Database.Mappings
             Map(m => m.IPv4Address);
             Map(m => m.Port);
             Map(m => m.Password);
-            HasMany(m => m.Coordinates).Inverse();
+            HasManyToMany(m => m.Coordinates)
+                .Cascade.All()
+                .Table("ServerCoordinates");
         }
     }
 }
-

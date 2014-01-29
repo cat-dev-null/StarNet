@@ -74,6 +74,7 @@
     <Compile Include="Database\Mappings\DatabaseCoordinatesMap.cs" />
     <Compile Include="Database\LocalSettings.cs" />
     <Compile Include="Database\Mappings\LocalSettingsMap.cs" />
+    <Compile Include="Common\StarboundSector.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
