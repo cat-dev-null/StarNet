@@ -66,10 +66,18 @@
     <Compile Include="Common\Coordinates.cs" />
     <Compile Include="Common\Variant.cs" />
     <Compile Include="Common\StarboundStream.cs" />
+    <Compile Include="Database\StarNetDatabase.cs" />
+    <Compile Include="Database\MonoSqliteDriver.cs" />
+    <Compile Include="Database\DatabaseServer.cs" />
+    <Compile Include="Database\DatabaseCoordinates.cs" />
+    <Compile Include="Database\Mappings\DatabaseServerMap.cs" />
+    <Compile Include="Database\Mappings\DatabaseCoordinatesMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Packets\" />
     <Folder Include="Common\" />
+    <Folder Include="Database\" />
+    <Folder Include="Database\Mappings\" />
   </ItemGroup>
 </Project>

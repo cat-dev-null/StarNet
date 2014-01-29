@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using System.Linq;
 using System.IO;
+using StarNet.Database;
 
 namespace StarNet
 {
@@ -11,9 +12,8 @@ namespace StarNet
     {
         public static void Main(string[] args)
         {
-            if (!Directory.Exists("config"))
-                Directory.CreateDirectory("config");
-            var localNode = new StarNetNode(new IPEndPoint(IPAddress.Any, 21024)); // TODO: Let this be configurable?
+            var database = new StarNetDatabase("node.db");
+            var localNode = new StarNetNode(database, new IPEndPoint(IPAddress.Any, 21024)); // TODO: Let this be configurable?
             localNode.Start();
             while (true)
                 Thread.Sleep(10000);

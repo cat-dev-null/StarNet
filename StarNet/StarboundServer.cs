@@ -12,14 +12,14 @@ namespace StarNet
         public int TotalPlayers { get; set; }
         public TimeSpan Delay { get; set; }
         public ServerStatus Status { get; set; }
-        public List<Coordinates2D> CoordinatesOwned { get; set; }
+        public List<Coordinates2D> Coordinates { get; set; }
         public string Password { get; set; }
 
         public StarboundServer(IPEndPoint endPoint)
         {
             EndPoint = endPoint;
             Status = ServerStatus.Healthy;
-            CoordinatesOwned = new List<Coordinates2D>();
+            Coordinates = new List<Coordinates2D>();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Net;
 using StarNet.Packets;
+using StarNet.Database;
 
 namespace StarNet
 {
@@ -12,6 +13,7 @@ namespace StarNet
         public const int ClientBufferLength = 1024;
         public const int ProtocolVersion = 635;
 
+        public StarNetDatabase Database { get; set; }
         public TcpListener Listener { get; set; }
         public UdpClient NetworkClient { get; set; }
         public List<StarboundClient> Clients { get; set; }
@@ -19,8 +21,9 @@ namespace StarNet
         public RemoteNode Siblings { get; set; }
         public Guid Id { get; set; }
 
-        public StarNetNode(IPEndPoint endpoint)
+        public StarNetNode(StarNetDatabase database, IPEndPoint endpoint)
         {
+            Database = database;
             Listener = new TcpListener(endpoint);
             Clients = new List<StarboundClient>();
             NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, NetworkPort));
