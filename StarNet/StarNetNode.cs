@@ -13,7 +13,7 @@ namespace StarNet
     {
         public const int NetworkPort = 21024;
         public const int ClientBufferLength = 1024;
-        public const int ProtocolVersion = 635;
+        public const int ProtocolVersion = 636;
         public const int NodeVersion = 1;
 
         public StarNetDatabase Database { get; set; }
