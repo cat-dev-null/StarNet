@@ -6,7 +6,8 @@ namespace StarNet.Packets
 {
     public class ProtocolVersionPacket : IPacket
     {
-        public byte PacketId { get { return 0; } }
+        public static readonly byte Id = 0;
+        public byte PacketId { get { return Id; } }
 
         public uint ProtocolVersion { get; set; }
 

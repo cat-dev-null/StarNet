@@ -6,7 +6,7 @@ namespace StarNet.Packets
     public class ClientConnectPacket : IPacket
     {
         public static readonly byte Id = 6;
-        public byte PacketId { get { return 6; } }
+        public byte PacketId { get { return Id; } }
 
         public string AssetDigest;
         public Variant Claim;

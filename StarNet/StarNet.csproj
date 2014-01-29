@@ -76,6 +76,12 @@
     <Compile Include="Database\Mappings\LocalSettingsMap.cs" />
     <Compile Include="Common\StarboundSector.cs" />
     <Compile Include="ClientHandlers\LoginHandlers.cs" />
+    <Compile Include="Packets\HandshakeChallengePacket.cs" />
+    <Compile Include="Database\User.cs" />
+    <Compile Include="Database\Character.cs" />
+    <Compile Include="Packets\ServerDisconnectPacket.cs" />
+    <Compile Include="Database\Mappings\CharacterMap.cs" />
+    <Compile Include="Database\Mappings\UserMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
