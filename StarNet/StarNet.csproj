@@ -72,6 +72,8 @@
     <Compile Include="Database\DatabaseCoordinates.cs" />
     <Compile Include="Database\Mappings\DatabaseServerMap.cs" />
     <Compile Include="Database\Mappings\DatabaseCoordinatesMap.cs" />
+    <Compile Include="Database\LocalSettings.cs" />
+    <Compile Include="Database\Mappings\LocalSettingsMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

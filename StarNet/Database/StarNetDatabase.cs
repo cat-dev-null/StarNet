@@ -24,7 +24,7 @@ namespace StarNet.Database
 
         private void BuildSchema(Configuration config)
         {
-            new SchemaExport(config).Create(false, true);
+            new SchemaUpdate(config).Execute(false, true);
         }
     }
 }

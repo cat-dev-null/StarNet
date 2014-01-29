@@ -4,6 +4,8 @@ using System.Net.Sockets;
 using System.Net;
 using StarNet.Packets;
 using StarNet.Database;
+using NHibernate.Linq;
+using System.Linq;
 
 namespace StarNet
 {
@@ -12,6 +14,7 @@ namespace StarNet
         public const int NetworkPort = 21024;
         public const int ClientBufferLength = 1024;
         public const int ProtocolVersion = 635;
+        public const int NodeVersion = 1;
 
         public StarNetDatabase Database { get; set; }
         public TcpListener Listener { get; set; }
@@ -27,7 +30,27 @@ namespace StarNet
             Listener = new TcpListener(endpoint);
             Clients = new List<StarboundClient>();
             NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, NetworkPort));
-            Id = Guid.NewGuid(); // TODO: Load this from disk
+            LoadDatabase();
+        }
+
+        private void LoadDatabase()
+        {
+            using (var session = Database.SessionFactory.OpenSession())
+            {
+                var all = session.Query<LocalSettings>().ToArray();
+                var localSettings = session.Query<LocalSettings>().FirstOrDefault();
+                if (localSettings == null)
+                {
+                    using (var transaction = session.BeginTransaction())
+                    {
+                        localSettings = new LocalSettings(NodeVersion);
+                        session.SaveOrUpdate(localSettings);
+                        transaction.Commit();
+                    }
+                }
+                // TODO: More settings? Version check?
+                Id = localSettings.UUID;
+            }
         }
 
         public void Start()

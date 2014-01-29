@@ -14,6 +14,7 @@ namespace StarNet
         {
             var database = new StarNetDatabase("node.db");
             var localNode = new StarNetNode(database, new IPEndPoint(IPAddress.Any, 21024)); // TODO: Let this be configurable?
+            Console.WriteLine("Starting node {0}", localNode.Id);
             localNode.Start();
             while (true)
                 Thread.Sleep(10000);
