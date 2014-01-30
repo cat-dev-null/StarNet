@@ -22,11 +22,11 @@ namespace StarNet
 
         public SharedDatabase Database { get; set; }
         public TcpListener Listener { get; set; }
-        public UdpClient NetworkClient { get; set; }
         public List<StarboundClient> Clients { get; set; }
         public ServerPool Servers { get; set; }
         public RemoteNode Siblings { get; set; }
         public LocalSettings Settings { get; set; }
+        public InterNodeNetwork Network { get; set; }
 
         public StarNetNode(SharedDatabase database, LocalSettings settings, IPEndPoint endpoint)
         {
@@ -34,7 +34,6 @@ namespace StarNet
             Database = database;
             Listener = new TcpListener(endpoint);
             Clients = new List<StarboundClient>();
-            NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, settings.NetworkPort));
             RegisterHandlers();
         }
 
@@ -45,9 +44,8 @@ namespace StarNet
 
         public void Start()
         {
+            Network.Start();
             Listener.Start();
-            NetworkClient.BeginReceive(NetworkMessageReceived, null);
-            Console.WriteLine("StarNet: Listening on " + NetworkClient.Client.LocalEndPoint);
             Listener.BeginAcceptSocket(AcceptClient, null);
             Console.WriteLine("Starbound: Listening on " + Listener.LocalEndpoint);
         }
@@ -76,26 +74,6 @@ namespace StarNet
             }
             client.Socket.BeginReceive(client.PacketReader.NetworkBuffer, 0, client.PacketReader.NetworkBuffer.Length,
                 SocketFlags.None, ClientDataReceived, client);
-        }
-
-        private void NetworkMessageReceived(IAsyncResult result)
-        {
-            IPEndPoint endPoint = default(IPEndPoint);
-            var payload = NetworkClient.EndReceive(result, ref endPoint);
-            NetworkClient.BeginReceive(NetworkMessageReceived, null);
-            var stream = new BinaryReader(new MemoryStream(payload), Encoding.UTF8);
-            // TODO: Verify payload authenticity with cryptographic signature
-            // This can probably be spoofed and then we'll look silly
-            if (endPoint.Address != IPAddress.Loopback)
-                return;
-            try
-            {
-                var id = stream.ReadByte();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Warning: Error parsing internetwork message ({0})", e.GetType().Name);
-            }
         }
     }
 }

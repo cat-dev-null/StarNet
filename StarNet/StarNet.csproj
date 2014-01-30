@@ -91,6 +91,10 @@
     <Compile Include="Packets\Starbound\ServerDisconnectPacket.cs" />
     <Compile Include="Packets\Starbound\UnhandledPacket.cs" />
     <Compile Include="Packets\Starbound\IStarboundPacket.cs" />
+    <Compile Include="Packets\StarNet\AddServerPacket.cs" />
+    <Compile Include="InterNodeNetwork.cs" />
+    <Compile Include="Packets\StarNet\StarNetPacket.cs" />
+    <Compile Include="Packets\StarNet\ConfirmationPacket.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -101,5 +105,6 @@
     <Folder Include="ClientHandlers\" />
     <Folder Include="NetworkHandlers\" />
     <Folder Include="Packets\Starbound\" />
+    <Folder Include="Packets\StarNet\" />
   </ItemGroup>
 </Project>

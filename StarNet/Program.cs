@@ -92,8 +92,7 @@ namespace StarNet
         {
             var client = new UdpClient();
             client.Connect(new IPEndPoint(IPAddress.Loopback, settings.NetworkPort));
-            var payload = Encoding.UTF8.GetBytes(value);
-            client.Send(payload, payload.Length);
+            // TODO
         }
     }
 }
