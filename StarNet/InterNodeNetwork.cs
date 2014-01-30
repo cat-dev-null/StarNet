@@ -16,6 +16,7 @@ namespace StarNet
     public class InterNodeNetwork
     {
         public delegate void PacketHandler(StarNetPacket packet, IPEndPoint endPoint, InterNodeNetwork network);
+        public delegate void HandleResponse(StarNetPacket response, uint transactionId);
         delegate StarNetPacket CreatePacketInstance();
         static Dictionary<byte, CreatePacketInstance> PacketFactories;
         private static Dictionary<byte, PacketHandler> PacketHandlers { get; set; }
@@ -34,11 +35,19 @@ namespace StarNet
             PacketHandlers[id] = handler;
         }
 
+        private class PendingResponse
+        {
+            public StarNetPacket OriginalPacket { get; set; }
+            public int Transaction { get; set; }
+            public HandleResponse ResponseHandler { get; set; }
+        }
+
         public UdpClient NetworkClient { get; set; }
         public StarNetNode LocalNode { get; set; }
         public List<RemoteNode> Network { get; set; }
 
         private List<StarNetPacket> PacketRetryList { get; set; }
+        private List<PendingResponse> PendingResponses { get; set; }
         private object NetworkLock = new object();
         private Timer RetryTimer { get; set; }
         private uint NextTransactionNumber { get; set; }
@@ -55,6 +64,7 @@ namespace StarNet
             CryptoProvider = crypto;
             Network = new List<RemoteNode>();
             PacketRetryList = new List<StarNetPacket>();
+            PendingResponses = new List<PendingResponse>();
             RetryTimer = new Timer(DoRetries);
             NextTransactionNumber = 0;
         }
@@ -240,6 +250,10 @@ namespace StarNet
         /// This node should propegate the transaction to the rest of the network.
         /// Only works for messages that originate from localhost.
         /// </summary>
-        PropegateTransaction = 2
+        PropegateTransaction = 2,
+        /// <summary>
+        /// Indicates that this packet is a response to an earlier request.
+        /// </summary>
+        IsResponse = 3
     }
 }

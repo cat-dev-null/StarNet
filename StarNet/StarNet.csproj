@@ -101,6 +101,7 @@
     <Compile Include="CryptoProvider.cs" />
     <Compile Include="Packets\StarNet\PingPacket.cs" />
     <Compile Include="Packets\StarNet\ShutdownPacket.cs" />
+    <Compile Include="Packets\StarNet\IdentificationRequestPacket.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
