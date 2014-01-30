@@ -8,7 +8,6 @@ namespace StarNet
     {
         public static void RegisterHandlers()
         {
-
         }
 
         public static void HandleAddServer(BinaryReader stream, IPEndPoint source)

@@ -33,6 +33,7 @@ namespace StarNet
         public List<RemoteNode> Siblings { get; set; }
 
         private uint NextTransactionNumber { get; set; }
+        private CryptoProvider CryptoProvider { get; set; }
         private object NetworkLock = new object();
 
         public uint GetTransactionNumber()
@@ -40,12 +41,17 @@ namespace StarNet
             return NextTransactionNumber++;
         }
 
-        public InterNodeNetwork(StarNetNode node)
+        public InterNodeNetwork(ushort port, CryptoProvider crypto)
         {
-            LocalNode = node;
-            NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, node.Settings.NetworkPort));
+            NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
+            CryptoProvider = crypto;
             Siblings = new List<RemoteNode>();
             NextTransactionNumber = 0;
+        }
+
+        public InterNodeNetwork(StarNetNode node, CryptoProvider crypto) : this(node.Settings.NetworkPort, crypto)
+        {
+            LocalNode = node;
         }
 
         public void Start()

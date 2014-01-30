@@ -27,12 +27,16 @@ namespace StarNet
         public LocalSettings Settings { get; set; }
         public InterNodeNetwork Network { get; set; }
 
-        public StarNetNode(SharedDatabase database, LocalSettings settings, IPEndPoint endpoint)
+        private CryptoProvider CryptoProvider { get; set; }
+
+        public StarNetNode(SharedDatabase database, LocalSettings settings, CryptoProvider crypto, IPEndPoint endpoint)
         {
             Settings = settings;
             Database = database;
             Listener = new TcpListener(endpoint);
             Clients = new List<StarboundClient>();
+            CryptoProvider = crypto;
+            Network = new InterNodeNetwork(this, crypto);
             RegisterHandlers();
         }
 

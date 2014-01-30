@@ -98,6 +98,7 @@
     <Compile Include="InterNodeNetwork.cs" />
     <Compile Include="Packets\StarNet\StarNetPacket.cs" />
     <Compile Include="Packets\StarNet\ConfirmationPacket.cs" />
+    <Compile Include="CryptoProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Net;
+using Org.BouncyCastle.Crypto;
 
 namespace StarNet
 {
@@ -9,6 +10,7 @@ namespace StarNet
     {
         public Guid Id { get; set; }
         public IPEndPoint EndPoint { get; set; }
+        public AsymmetricKeyParameter PublicKey { get; set; }
 
         public RemoteNode(IPEndPoint endPoint, Guid id = default(Guid))
         {
