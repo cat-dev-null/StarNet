@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Text;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Crypto;
+using StarNet.Packets.StarNet;
 
 namespace StarNet
 {
@@ -109,8 +110,8 @@ namespace StarNet
             {
                 switch (action)
                 {
-                    case "testudp":
-                        SendTestPayload(args[1], settings);
+                    case "ping":
+                        PingServer(settings);
                         break;
                 }
             }
@@ -120,11 +121,24 @@ namespace StarNet
             }
         }
 
-        static void SendTestPayload(string value, LocalSettings settings)
+        private static void PingServer(LocalSettings settings)
         {
-            var client = new UdpClient();
-            client.Connect(new IPEndPoint(IPAddress.Loopback, settings.NetworkPort));
-            // TODO
+            var network = new InterNodeNetwork(settings.NetworkPort, new CryptoProvider(ServerKey), true);
+            var endPoint = new IPEndPoint(IPAddress.Loopback, settings.NetworkPort);
+            network.Start();
+            var packet = new PingPacket();
+            var reset = new ManualResetEvent(false);
+            DateTime sent = default(DateTime);
+            packet.ConfirmationReceived += (sender, e) =>
+            {
+                Console.WriteLine("<- PONG {0}ms", (int)(DateTime.Now - sent).TotalMilliseconds);
+                reset.Set();
+            };
+            sent = DateTime.Now;
+            network.Send(packet, endPoint);
+            Console.WriteLine("-> PING {0}", endPoint);
+            if (!reset.WaitOne(20000))
+                Console.WriteLine("Timed out.");
         }
     }
 }

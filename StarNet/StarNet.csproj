@@ -94,11 +94,11 @@
     <Compile Include="Packets\Starbound\ServerDisconnectPacket.cs" />
     <Compile Include="Packets\Starbound\UnhandledPacket.cs" />
     <Compile Include="Packets\Starbound\IStarboundPacket.cs" />
-    <Compile Include="Packets\StarNet\AddServerPacket.cs" />
     <Compile Include="InterNodeNetwork.cs" />
     <Compile Include="Packets\StarNet\StarNetPacket.cs" />
     <Compile Include="Packets\StarNet\ConfirmationPacket.cs" />
     <Compile Include="CryptoProvider.cs" />
+    <Compile Include="Packets\StarNet\PingPacket.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

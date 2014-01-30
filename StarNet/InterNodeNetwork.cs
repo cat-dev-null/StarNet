@@ -24,7 +24,7 @@ namespace StarNet
             PacketHandlers = new Dictionary<byte, PacketHandler>();
             PacketFactories = new Dictionary<byte, CreatePacketInstance>();
             PacketFactories[ConfirmationPacket.Id] = () => new ConfirmationPacket();
-            PacketFactories[AddServerPacket.Id] = () => new AddServerPacket();
+            PacketFactories[PingPacket.Id] = () => new PingPacket();
         }
 
         public static void RegisterPacketHandler(byte id, PacketHandler handler)
@@ -47,18 +47,22 @@ namespace StarNet
             return NextTransactionNumber++;
         }
 
-        public InterNodeNetwork(ushort port, CryptoProvider crypto)
+        public InterNodeNetwork(ushort port, CryptoProvider crypto, bool clientOnly = false)
         {
-            NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
+            if (clientOnly)
+                NetworkClient = new UdpClient(AddressFamily.InterNetwork);
+            else
+                NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             CryptoProvider = crypto;
             Network = new List<RemoteNode>();
+            PacketRetryList = new List<StarNetPacket>();
+            RetryTimer = new Timer(DoRetries);
             NextTransactionNumber = 0;
         }
 
         public InterNodeNetwork(StarNetNode node, CryptoProvider crypto) : this(node.Settings.NetworkPort, crypto)
         {
             LocalNode = node;
-            RetryTimer = new Timer(DoRetries);
         }
 
         private void DoRetries(object discarded)
@@ -81,7 +85,8 @@ namespace StarNet
         public void Start()
         {
             NetworkClient.BeginReceive(NetworkMessageReceived, null);
-            Console.WriteLine("Network: Listening on " + NetworkClient.Client.LocalEndPoint);
+            if (LocalNode != null)
+                Console.WriteLine("Network: Listening on " + NetworkClient.Client.LocalEndPoint);
             RetryTimer.Change(10000, 10000);
         }
 
@@ -113,7 +118,7 @@ namespace StarNet
             packet.ScheduledRetry = DateTime.UtcNow.AddSeconds(10);
             if (packet.Retries == 0 && (packet.Flags & MessageFlags.ConfirmationRequired) > 0)
                 lock (NetworkLock) PacketRetryList.Add(packet);
-            NetworkClient.SendAsync(payload, payload.Length, destination);
+            NetworkClient.Send(payload, payload.Length, destination);
         }
 
         private void HandleConfirmation(StarNetPacket packet)
@@ -140,7 +145,7 @@ namespace StarNet
             var stream = new BinaryReader(new MemoryStream(payload), Encoding.UTF8);
             AsymmetricKeyParameter key;
             RemoteNode node = null;
-            if (endPoint.Address == IPAddress.Loopback)
+            if (endPoint.Address.Equals(IPAddress.Loopback))
                 key = CryptoProvider.PublicKey;
             else
             {
@@ -155,15 +160,13 @@ namespace StarNet
                 var flags = (MessageFlags)stream.ReadByte();
                 var transaction = stream.ReadUInt32();
                 var timestamp = new DateTime(stream.ReadInt64(), DateTimeKind.Utc);
-                // TODO: Evaluate this margin of error, and this whole system in general that prevents resubmission
-                if (Math.Abs((timestamp - node.PreviousMessageTimestamp).TotalSeconds) > 10)
+                if (node != null)
                 {
-                    // Idea: don't fail silently
-                    // Instead, send the origin a challenge packet with a random payload and the transaction number, asking it
-                    // to verify that it meant to send that packet in the first place.
-                    return;
+                    // TODO: Evaluate this margin of error, and this whole system in general that prevents resubmission
+                    if (Math.Abs((timestamp - node.PreviousMessageTimestamp).TotalSeconds) > 10)
+                        return;
+                    node.PreviousMessageTimestamp = timestamp;
                 }
-                node.PreviousMessageTimestamp = timestamp;
                 if (PacketFactories.ContainsKey(id))
                 {
                     var packet = PacketFactories[id]();
@@ -204,7 +207,7 @@ namespace StarNet
             }
             catch (Exception e)
             {
-                Console.WriteLine("Warning: Error parsing internetwork message ({0})", e.GetType().Name);
+                Console.WriteLine("Warning: Error parsing internetwork message: {0}", e.GetType().Name);
             }
         }
     }

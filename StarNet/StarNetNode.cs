@@ -43,6 +43,7 @@ namespace StarNet
         private void RegisterHandlers()
         {
             LoginHandlers.Register();
+            LocalHandlers.Register();
         }
 
         public void Start()
