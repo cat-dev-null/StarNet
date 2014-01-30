@@ -3,9 +3,12 @@ using System.Net.Sockets;
 using System.Net;
 using System.IO;
 using System.Text;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using StarNet.Packets.StarNet;
 using Org.BouncyCastle.Crypto;
+using System.Linq;
+using System.Threading;
 
 namespace StarNet
 {
@@ -31,11 +34,13 @@ namespace StarNet
 
         public UdpClient NetworkClient { get; set; }
         public StarNetNode LocalNode { get; set; }
-        public List<RemoteNode> Siblings { get; set; }
+        public List<RemoteNode> Network { get; set; }
 
+        private List<StarNetPacket> PacketRetryList { get; set; }
+        private object NetworkLock = new object();
+        private Timer RetryTimer { get; set; }
         private uint NextTransactionNumber { get; set; }
         private CryptoProvider CryptoProvider { get; set; }
-        private object NetworkLock = new object();
 
         public uint GetTransactionNumber()
         {
@@ -46,26 +51,84 @@ namespace StarNet
         {
             NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             CryptoProvider = crypto;
-            Siblings = new List<RemoteNode>();
+            Network = new List<RemoteNode>();
             NextTransactionNumber = 0;
         }
 
         public InterNodeNetwork(StarNetNode node, CryptoProvider crypto) : this(node.Settings.NetworkPort, crypto)
         {
             LocalNode = node;
+            RetryTimer = new Timer(DoRetries);
+        }
+
+        private void DoRetries(object discarded)
+        {
+            lock (NetworkLock)
+            {
+                for (int i = 0; i < PacketRetryList.Count; i++)
+                {
+                    if (PacketRetryList[i].ScheduledRetry < DateTime.Now)
+                    {
+                        var packet = PacketRetryList[i];
+                        PacketRetryList.RemoveAt(i--);
+                        packet.Retries++;
+                        Send(packet, packet.Destination);
+                    }
+                }
+            }
         }
 
         public void Start()
         {
             NetworkClient.BeginReceive(NetworkMessageReceived, null);
             Console.WriteLine("Network: Listening on " + NetworkClient.Client.LocalEndPoint);
+            RetryTimer.Change(10000, 10000);
+        }
+
+        public RemoteNode GetNode(IPEndPoint endPoint)
+        {
+            return Network.SingleOrDefault(s => s.EndPoint == endPoint);
         }
 
         public void Send(StarNetPacket packet, IPEndPoint destination)
         {
+            var memory = new MemoryStream();
+            var stream = new BinaryWriter(memory);
+            stream.Write(packet.PacketId);
+            stream.Write((byte)packet.Flags);
+            if (packet.AssignTransactionId)
+                packet.Transaction = GetTransactionNumber();
+            stream.Write(packet.Transaction);
+            stream.Write(DateTime.UtcNow.Ticks);
+            packet.Write(stream);
+            var payload = new byte[memory.Position];
+            memory.Seek(0, SeekOrigin.Begin);
+            memory.Read(payload, 0, payload.Length);
+            var signature = CryptoProvider.SignMessage(payload);
+            memory.Write(signature, 0, signature.Length);
+            payload = new byte[memory.Position];
+            memory.Seek(0, SeekOrigin.Begin);
+            memory.Read(payload, 0, payload.Length);
+            packet.Destination = destination;
+            packet.ScheduledRetry = DateTime.UtcNow.AddSeconds(10);
+            if (packet.Retries == 0 && (packet.Flags & MessageFlags.ConfirmationRequired) > 0)
+                lock (NetworkLock) PacketRetryList.Add(packet);
+            NetworkClient.SendAsync(payload, payload.Length, destination);
+        }
+
+        private void HandleConfirmation(StarNetPacket packet)
+        {
             lock (NetworkLock)
             {
-
+                for (int i = 0; i < PacketRetryList.Count; i++)
+                {
+                    if (PacketRetryList[i].Transaction == packet.Transaction)
+                    {
+                        PacketRetryList[i].OnConfirmationReceived();
+                        PacketRetryList.RemoveAt(i);
+                        break;
+                    }
+                }
             }
         }
 
@@ -76,12 +139,15 @@ namespace StarNet
             NetworkClient.BeginReceive(NetworkMessageReceived, null);
             var stream = new BinaryReader(new MemoryStream(payload), Encoding.UTF8);
             AsymmetricKeyParameter key;
+            RemoteNode node = null;
             if (endPoint.Address == IPAddress.Loopback)
                 key = CryptoProvider.PublicKey;
             else
             {
-                // TODO: Look up key for the node that sent this message
-                return;
+                node = GetNode(endPoint);
+                if (node == null)
+                    return;
+                key = node.PublicKey;
             }
             try
             {
@@ -89,9 +155,15 @@ namespace StarNet
                 var flags = (MessageFlags)stream.ReadByte();
                 var transaction = stream.ReadUInt32();
                 var timestamp = new DateTime(stream.ReadInt64(), DateTimeKind.Utc);
-                // TODO: Confirm that the timestamp is further ahead of the last timestamp we saw
-                // Within a certain margin of error to account for UDP not caring about message order
-                // This is a crypto thing, raise a warning and discard the packet if that check fails
+                // TODO: Evaluate this margin of error, and this whole system in general that prevents resubmission
+                if (Math.Abs((timestamp - node.PreviousMessageTimestamp).TotalSeconds) > 10)
+                {
+                    // Idea: don't fail silently
+                    // Instead, send the origin a challenge packet with a random payload and the transaction number, asking it
+                    // to verify that it meant to send that packet in the first place.
+                    return;
+                }
+                node.PreviousMessageTimestamp = timestamp;
                 if (PacketFactories.ContainsKey(id))
                 {
                     var packet = PacketFactories[id]();
@@ -109,13 +181,19 @@ namespace StarNet
                         Console.WriteLine("Warning: Received internode network packet with bad signature from {0}", endPoint);
                     else
                     {
-                        if (PacketHandlers.ContainsKey(id))
+                        if (id == ConfirmationPacket.Id)
+                            HandleConfirmation(packet);
+                        else if (PacketHandlers.ContainsKey(id))
                             PacketHandlers[id](packet, endPoint, this);
                         else
                             Console.WriteLine("Warning: Unhandled internode network packet with ID {0}", id);
-                        if ((flags & MessageFlags.PropegateTransaction) > 0)
+                        if ((flags & MessageFlags.PropegateTransaction) > 0 && endPoint.Address == IPAddress.Loopback)
                         {
-                            // TODO
+                            foreach (var target in Network)
+                            {
+                                if (target != node)
+                                    Send(packet, target.EndPoint);
+                            }
                         }
                         if ((flags & MessageFlags.ConfirmationRequired) > 0)
                             Send(new ConfirmationPacket(transaction), endPoint); // TODO: Don't re-handle duplicate transactions
@@ -141,6 +219,7 @@ namespace StarNet
         ConfirmationRequired = 1,
         /// <summary>
         /// This node should propegate the transaction to the rest of the network.
+        /// Only works for messages that originate from localhost.
         /// </summary>
         PropegateTransaction = 2
     }

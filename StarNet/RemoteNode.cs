@@ -12,6 +12,7 @@ namespace StarNet
         public IPEndPoint EndPoint { get; set; }
         public DateTime PreviousMessageTimestamp { get; set; }
         public AsymmetricKeyParameter PublicKey { get; set; }
+        public UdpClient Client { get; set; }
 
         public RemoteNode(IPEndPoint endPoint, Guid id = default(Guid))
         {
@@ -20,6 +21,9 @@ namespace StarNet
                 id = Guid.NewGuid();
             else
                 Id = id;
+            PreviousMessageTimestamp = DateTime.MinValue;
+            Client = new UdpClient();
+            Client.Connect(endPoint);
         }
     }
 }
