@@ -10,6 +10,7 @@ namespace StarNet
     {
         public Guid Id { get; set; }
         public IPEndPoint EndPoint { get; set; }
+        public DateTime PreviousMessageTimestamp { get; set; }
         public AsymmetricKeyParameter PublicKey { get; set; }
 
         public RemoteNode(IPEndPoint endPoint, Guid id = default(Guid))

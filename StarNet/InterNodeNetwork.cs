@@ -88,7 +88,10 @@ namespace StarNet
                 var id = stream.ReadByte();
                 var flags = (MessageFlags)stream.ReadByte();
                 var transaction = stream.ReadUInt32();
-                stream.ReadInt64(); // timestamp, only used to give something unique to sign
+                var timestamp = new DateTime(stream.ReadInt64(), DateTimeKind.Utc);
+                // TODO: Confirm that the timestamp is further ahead of the last timestamp we saw
+                // Within a certain margin of error to account for UDP not caring about message order
+                // This is a crypto thing, raise a warning and discard the packet if that check fails
                 if (PacketFactories.ContainsKey(id))
                 {
                     var packet = PacketFactories[id]();
