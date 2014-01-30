@@ -7,12 +7,12 @@ using StarNet.Database;
 using NHibernate.Linq;
 using System.Linq;
 using StarNet.ClientHandlers;
+using System.Text;
 
 namespace StarNet
 {
     public class StarNetNode
     {
-        public const int NetworkPort = 21024;
         public const int ClientBufferLength = 1024;
         public const int ProtocolVersion = 636;
 
@@ -30,7 +30,7 @@ namespace StarNet
             Database = database;
             Listener = new TcpListener(endpoint);
             Clients = new List<StarboundClient>();
-            NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, NetworkPort));
+            NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, settings.NetworkPort));
             RegisterHandlers();
         }
 
@@ -42,10 +42,10 @@ namespace StarNet
         public void Start()
         {
             Listener.Start();
-            Listener.BeginAcceptSocket(AcceptClient, null);
             NetworkClient.BeginReceive(NetworkMessageReceived, null);
-            Console.WriteLine("Listening on " + Listener.LocalEndpoint);
-            // TODO: Log into the network
+            Console.WriteLine("StarNet: Listening on " + NetworkClient.Client.LocalEndPoint);
+            Listener.BeginAcceptSocket(AcceptClient, null);
+            Console.WriteLine("Starbound: Listening on " + Listener.LocalEndpoint);
         }
 
         private void AcceptClient(IAsyncResult result)
@@ -77,8 +77,8 @@ namespace StarNet
         private void NetworkMessageReceived(IAsyncResult result)
         {
             IPEndPoint endPoint = default(IPEndPoint);
-            var message = NetworkClient.EndReceive(result, ref endPoint);
-            Console.WriteLine("Got a network message, which is weird, because we don't have a network yet. Length: " + message.Length);
+            var payload = NetworkClient.EndReceive(result, ref endPoint);
+            Console.WriteLine("StarNet message: {0}", Encoding.UTF8.GetString(payload));
         }
     }
 }

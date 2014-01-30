@@ -16,18 +16,21 @@ namespace StarNet.Database
                 UUID = Guid.Parse(value);
             }
         }
+
         [JsonIgnore]
         public Guid UUID { get; protected set; }
+
         public string ConnectionString { get; set; }
+
+        public ushort StarboundPort { get; set; }
+
+        public ushort NetworkPort { get; set; }
 
         public LocalSettings()
         {
-        }
-
-        public LocalSettings(string connectionString)
-        {
-            ConnectionString = connectionString;
             UUID = Guid.NewGuid();
+            StarboundPort = 21025;
+            NetworkPort = 21024;
         }
     }
 }
