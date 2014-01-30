@@ -22,11 +22,11 @@ namespace StarNet
             {
                 // First run
                 Console.Write("Please enter a postgresql connection string.\n" +
-                    "Example: Server=127.0.0.1;Port=5432;Database=the_db;User Id=user_name;Password=password;\n" +
+                    "Example: Server=127.0.0.1;Database=starnet;User Id=user_name;Password=password;\n" +
                     "Connection string: ");
                 var cs = Console.ReadLine();
                 settings = new LocalSettings(cs);
-                File.WriteAllText("node.config", JsonConvert.SerializeObject(settings));
+                File.WriteAllText("node.config", JsonConvert.SerializeObject(settings, Formatting.Indented));
             }
             var sharedDatabase = new SharedDatabase(settings.ConnectionString);
             if (args.Length != 0)

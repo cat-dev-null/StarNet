@@ -16,8 +16,7 @@ namespace StarNet.Database
 
         public SharedDatabase(string connectionString)
         {
-            NpgsqlCommand foo = null;
-            var config = PostgreSQLConfiguration.Standard.ConnectionString(connectionString);
+            var config = PostgreSQLConfiguration.PostgreSQL82.ConnectionString(connectionString);
             SessionFactory = Fluently.Configure()
                 .Database(config)
                 .Mappings(m => m.FluentMappings.Add<UserMap>())
