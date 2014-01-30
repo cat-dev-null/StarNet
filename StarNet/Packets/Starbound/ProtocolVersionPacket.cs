@@ -2,9 +2,9 @@ using System;
 using StarNet.Packets;
 using StarNet.Common;
 
-namespace StarNet.Packets
+namespace StarNet.Packets.Starbound
 {
-    public class ProtocolVersionPacket : IPacket
+    public class ProtocolVersionPacket : IStarboundPacket
     {
         public static readonly byte Id = 0;
         public byte PacketId { get { return Id; } }

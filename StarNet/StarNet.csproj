@@ -68,11 +68,7 @@
     <Compile Include="StarboundServer.cs" />
     <Compile Include="ServerStatus.cs" />
     <Compile Include="StarNetNode.cs" />
-    <Compile Include="Packets\UnhandledPacket.cs" />
-    <Compile Include="Packets\IPacket.cs" />
-    <Compile Include="Packets\ProtocolVersionPacket.cs" />
     <Compile Include="PacketReader.cs" />
-    <Compile Include="Packets\ClientConnectPacket.cs" />
     <Compile Include="Common\Coordinates.cs" />
     <Compile Include="Common\Variant.cs" />
     <Compile Include="Common\StarboundStream.cs" />
@@ -83,13 +79,18 @@
     <Compile Include="Database\LocalSettings.cs" />
     <Compile Include="Common\StarboundSector.cs" />
     <Compile Include="ClientHandlers\LoginHandlers.cs" />
-    <Compile Include="Packets\HandshakeChallengePacket.cs" />
     <Compile Include="Database\User.cs" />
     <Compile Include="Database\Character.cs" />
-    <Compile Include="Packets\ServerDisconnectPacket.cs" />
     <Compile Include="Database\Mappings\CharacterMap.cs" />
     <Compile Include="Database\Mappings\UserMap.cs" />
     <Compile Include="Database\SharedDatabase.cs" />
+    <Compile Include="NetworkHandlers\LocalHandlers.cs" />
+    <Compile Include="Packets\Starbound\ClientConnectPacket.cs" />
+    <Compile Include="Packets\Starbound\HandshakeChallengePacket.cs" />
+    <Compile Include="Packets\Starbound\ProtocolVersionPacket.cs" />
+    <Compile Include="Packets\Starbound\ServerDisconnectPacket.cs" />
+    <Compile Include="Packets\Starbound\UnhandledPacket.cs" />
+    <Compile Include="Packets\Starbound\IStarboundPacket.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -98,5 +99,7 @@
     <Folder Include="Database\" />
     <Folder Include="Database\Mappings\" />
     <Folder Include="ClientHandlers\" />
+    <Folder Include="NetworkHandlers\" />
+    <Folder Include="Packets\Starbound\" />
   </ItemGroup>
 </Project>

@@ -1,9 +1,9 @@
 using System;
 using StarNet.Common;
 
-namespace StarNet.Packets
+namespace StarNet.Packets.Starbound
 {
-    public class HandshakeChallengePacket : IPacket
+    public class HandshakeChallengePacket : IStarboundPacket
     {
         public static readonly byte Id = 3;
         public byte PacketId { get { return Id; } }

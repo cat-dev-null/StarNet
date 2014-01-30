@@ -8,6 +8,8 @@ using NHibernate.Linq;
 using System.Linq;
 using StarNet.ClientHandlers;
 using System.Text;
+using System.IO;
+using StarNet.Packets.Starbound;
 
 namespace StarNet
 {
@@ -15,6 +17,8 @@ namespace StarNet
     {
         public const int ClientBufferLength = 1024;
         public const int ProtocolVersion = 636;
+
+        public delegate void HandleNetworkMessage(BinaryReader stream, IPEndPoint source);
 
         public SharedDatabase Database { get; set; }
         public TcpListener Listener { get; set; }
@@ -78,7 +82,20 @@ namespace StarNet
         {
             IPEndPoint endPoint = default(IPEndPoint);
             var payload = NetworkClient.EndReceive(result, ref endPoint);
-            Console.WriteLine("StarNet message: {0}", Encoding.UTF8.GetString(payload));
+            NetworkClient.BeginReceive(NetworkMessageReceived, null);
+            var stream = new BinaryReader(new MemoryStream(payload), Encoding.UTF8);
+            // TODO: Verify payload authenticity with cryptographic signature
+            // This can probably be spoofed and then we'll look silly
+            if (endPoint.Address != IPAddress.Loopback)
+                return;
+            try
+            {
+                var id = stream.ReadByte();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Warning: Error parsing internetwork message ({0})", e.GetType().Name);
+            }
         }
     }
 }

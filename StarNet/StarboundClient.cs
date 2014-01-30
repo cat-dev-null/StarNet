@@ -7,13 +7,14 @@ using System.IO;
 using Ionic.Zlib;
 using StarNet.Packets;
 using StarNet.Common;
+using StarNet.Packets.Starbound;
 
 namespace StarNet
 {
     public class StarboundClient
     {
         public Socket Socket { get; set; }
-        public ConcurrentQueue<IPacket> PacketQueue { get; set; }
+        public ConcurrentQueue<IStarboundPacket> PacketQueue { get; set; }
         public StarboundServer CurrentServer { get; set; }
         public PacketReader PacketReader { get; set; }
         public byte[] Shipworld { get; set; }
@@ -24,7 +25,7 @@ namespace StarNet
         public StarboundClient(Socket socket)
         {
             Socket = socket;
-            PacketQueue = new ConcurrentQueue<IPacket>();
+            PacketQueue = new ConcurrentQueue<IStarboundPacket>();
             PacketReader = new PacketReader();
         }
 
@@ -32,7 +33,7 @@ namespace StarNet
         {
             while (PacketQueue.Count > 0)
             {
-                IPacket next;
+                IStarboundPacket next;
                 while (!PacketQueue.TryDequeue(out next)) ;
                 var memoryStream = new MemoryStream();
                 var stream = new StarboundStream(memoryStream);

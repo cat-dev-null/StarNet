@@ -1,9 +1,9 @@
 using System;
 using StarNet.Common;
 
-namespace StarNet.Packets
+namespace StarNet.Packets.Starbound
 {
-    public class ClientConnectPacket : IPacket
+    public class ClientConnectPacket : IStarboundPacket
     {
         public static readonly byte Id = 6;
         public byte PacketId { get { return Id; } }

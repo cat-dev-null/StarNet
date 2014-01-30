@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using StarNet.Common;
 
-namespace StarNet.Packets
+namespace StarNet.Packets.Starbound
 {
-    public class UnhandledPacket : IPacket
+    public class UnhandledPacket : IStarboundPacket
     {
         public byte PacketId { get; set; }
         public bool Compressed { get; set; }

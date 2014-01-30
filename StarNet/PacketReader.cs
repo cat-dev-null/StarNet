@@ -4,13 +4,14 @@ using Ionic.Zlib;
 using System.IO;
 using System.Collections.Generic;
 using StarNet.Common;
+using StarNet.Packets.Starbound;
 
 namespace StarNet
 {
     public class PacketReader
     {
-        public delegate void PacketHandler(StarNetNode node, StarboundClient client, IPacket packet);
-        delegate IPacket CreatePacketInstance();
+        public delegate void PacketHandler(StarNetNode node, StarboundClient client, IStarboundPacket packet);
+        delegate IStarboundPacket CreatePacketInstance();
         static Dictionary<byte, CreatePacketInstance> PacketFactories;
         static Dictionary<byte, PacketHandler> PacketHandlers;
 
@@ -27,7 +28,7 @@ namespace StarNet
             PacketHandlers[packetId] = handler;
         }
 
-        public static void HandlePacket(StarNetNode node, StarboundClient client, IPacket packet)
+        public static void HandlePacket(StarNetNode node, StarboundClient client, IStarboundPacket packet)
         {
             if (PacketHandlers.ContainsKey(packet.PacketId))
                 PacketHandlers[packet.PacketId](node, client, packet);
@@ -49,7 +50,7 @@ namespace StarNet
             NetworkBuffer = new byte[NetworkBufferLength];
         }
 
-        public IPacket[] UpdateBuffer(int length)
+        public IStarboundPacket[] UpdateBuffer(int length)
         {
             if (length == 0)
                 return null; // TODO: This is probably a network error, handle it appropriately
@@ -104,14 +105,14 @@ namespace StarNet
             return null;
         }
 
-        public IPacket[] Decode(byte packetId, byte[] payload)
+        public IStarboundPacket[] Decode(byte packetId, byte[] payload)
         {
             var memoryStream = new MemoryStream(payload);
             var stream = new StarboundStream(memoryStream);
-            List<IPacket> packets = new List<IPacket>();
+            List<IStarboundPacket> packets = new List<IStarboundPacket>();
             while (stream.Position < stream.Length)
             {
-                IPacket packet;
+                IStarboundPacket packet;
                 if (PacketFactories.ContainsKey(packetId))
                     packet = PacketFactories[packetId]();
                 else

@@ -1,5 +1,6 @@
 using System;
 using StarNet.Packets;
+using StarNet.Packets.Starbound;
 
 namespace StarNet.ClientHandlers
 {
@@ -10,7 +11,7 @@ namespace StarNet.ClientHandlers
             PacketReader.RegisterPacketHandler(ClientConnectPacket.Id, HandleClientConnect);
         }
 
-        public static void HandleClientConnect(StarNetNode node, StarboundClient client, IPacket _packet)
+        public static void HandleClientConnect(StarNetNode node, StarboundClient client, IStarboundPacket _packet)
         {
             var packet = (ClientConnectPacket)_packet;
             var guid = new Guid(packet.UUID);
