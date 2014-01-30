@@ -15,49 +15,28 @@ namespace StarNet
         public const int NetworkPort = 21024;
         public const int ClientBufferLength = 1024;
         public const int ProtocolVersion = 636;
-        public const int NodeVersion = 1;
 
-        public NodeDatabase Database { get; set; }
+        public SharedDatabase Database { get; set; }
         public TcpListener Listener { get; set; }
         public UdpClient NetworkClient { get; set; }
         public List<StarboundClient> Clients { get; set; }
         public ServerPool Servers { get; set; }
         public RemoteNode Siblings { get; set; }
-        public Guid Id { get; set; }
+        public LocalSettings Settings { get; set; }
 
-        public StarNetNode(NodeDatabase database, IPEndPoint endpoint)
+        public StarNetNode(SharedDatabase database, LocalSettings settings, IPEndPoint endpoint)
         {
+            Settings = settings;
             Database = database;
             Listener = new TcpListener(endpoint);
             Clients = new List<StarboundClient>();
             NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, NetworkPort));
-            LoadDatabase();
             RegisterHandlers();
         }
 
         private void RegisterHandlers()
         {
             LoginHandlers.Register();
-        }
-
-        private void LoadDatabase()
-        {
-            using (var session = Database.SessionFactory.OpenSession())
-            {
-                var all = session.Query<LocalSettings>().ToArray();
-                var localSettings = session.Query<LocalSettings>().FirstOrDefault();
-                if (localSettings == null)
-                {
-                    using (var transaction = session.BeginTransaction())
-                    {
-                        localSettings = new LocalSettings(NodeVersion);
-                        session.SaveOrUpdate(localSettings);
-                        transaction.Commit();
-                    }
-                }
-                // TODO: More settings? Version check?
-                Id = localSettings.UUID;
-            }
         }
 
         public void Start()

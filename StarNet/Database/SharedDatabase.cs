@@ -6,6 +6,7 @@ using NHibernate.Cfg;
 using System.IO;
 using NHibernate.Tool.hbm2ddl;
 using StarNet.Database.Mappings;
+using Npgsql;
 
 namespace StarNet.Database
 {
@@ -15,13 +16,16 @@ namespace StarNet.Database
 
         public SharedDatabase(string connectionString)
         {
-            var config = PostgreSQLConfiguration.Standard.ConnectionString("");
+            NpgsqlCommand foo = null;
+            var config = PostgreSQLConfiguration.Standard.ConnectionString(connectionString);
             SessionFactory = Fluently.Configure()
                 .Database(config)
-                    .Mappings(m => m.FluentMappings.Add<UserMap>())
-                    .Mappings(m => m.FluentMappings.Add<CharacterMap>())
-                    .ExposeConfiguration(BuildSchema)
-                    .BuildSessionFactory();
+                .Mappings(m => m.FluentMappings.Add<UserMap>())
+                .Mappings(m => m.FluentMappings.Add<CharacterMap>())
+                .Mappings(m => m.FluentMappings.Add<DatabaseServerMap>())
+                .Mappings(m => m.FluentMappings.Add<DatabaseCoordinatesMap>())
+                .ExposeConfiguration(BuildSchema)
+                .BuildSessionFactory();
         }
 
         private void BuildSchema(Configuration config)

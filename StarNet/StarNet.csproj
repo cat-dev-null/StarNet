@@ -38,7 +38,6 @@
     <Reference Include="Ionic.Zip.Reduced">
       <HintPath>..\lib\Ionic.Zip.Reduced.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Data.Sqlite" />
     <Reference Include="FluentNHibernate">
       <HintPath>..\lib\FluentNHibernate.dll</HintPath>
     </Reference>
@@ -48,6 +47,11 @@
     <Reference Include="NHibernate">
       <HintPath>..\lib\NHibernate.dll</HintPath>
     </Reference>
+    <Reference Include="Npgsql" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -66,13 +70,11 @@
     <Compile Include="Common\Coordinates.cs" />
     <Compile Include="Common\Variant.cs" />
     <Compile Include="Common\StarboundStream.cs" />
-    <Compile Include="Database\MonoSqliteDriver.cs" />
     <Compile Include="Database\DatabaseServer.cs" />
     <Compile Include="Database\DatabaseCoordinates.cs" />
     <Compile Include="Database\Mappings\DatabaseServerMap.cs" />
     <Compile Include="Database\Mappings\DatabaseCoordinatesMap.cs" />
     <Compile Include="Database\LocalSettings.cs" />
-    <Compile Include="Database\Mappings\LocalSettingsMap.cs" />
     <Compile Include="Common\StarboundSector.cs" />
     <Compile Include="ClientHandlers\LoginHandlers.cs" />
     <Compile Include="Packets\HandshakeChallengePacket.cs" />
@@ -81,7 +83,6 @@
     <Compile Include="Packets\ServerDisconnectPacket.cs" />
     <Compile Include="Database\Mappings\CharacterMap.cs" />
     <Compile Include="Database\Mappings\UserMap.cs" />
-    <Compile Include="Database\NodeDatabase.cs" />
     <Compile Include="Database\SharedDatabase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
