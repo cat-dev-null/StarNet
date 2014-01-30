@@ -30,8 +30,10 @@ namespace StarNet
 
         public UdpClient NetworkClient { get; set; }
         public StarNetNode LocalNode { get; set; }
+        public List<RemoteNode> Siblings { get; set; }
 
         private uint NextTransactionNumber { get; set; }
+        private object NetworkLock = new object();
 
         public uint GetTransactionNumber()
         {
@@ -42,6 +44,7 @@ namespace StarNet
         {
             LocalNode = node;
             NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, node.Settings.NetworkPort));
+            Siblings = new List<RemoteNode>();
             NextTransactionNumber = 0;
         }
 
@@ -53,7 +56,10 @@ namespace StarNet
 
         public void Send(StarNetPacket packet, IPEndPoint destination)
         {
-            // TODO
+            lock (NetworkLock)
+            {
+
+            }
         }
 
         private void NetworkMessageReceived(IAsyncResult result)
@@ -71,6 +77,7 @@ namespace StarNet
                 var id = stream.ReadByte();
                 var flags = (MessageFlags)stream.ReadByte();
                 var transaction = stream.ReadUInt32();
+                stream.ReadInt64(); // timestamp, only used to give something unique to sign
                 if (PacketFactories.ContainsKey(id))
                 {
                     var packet = PacketFactories[id]();
@@ -80,6 +87,10 @@ namespace StarNet
                         PacketHandlers[id](packet, endPoint, this);
                     else
                         Console.WriteLine("Warning: Unhandled internode network packet with ID {0}", id);
+                    if ((flags & MessageFlags.PropegateTransaction) > 0)
+                    {
+                        // TODO
+                    }
                 }
                 else
                     Console.WriteLine("Warning: Received unknown internode network packet ID {0}", id);
@@ -97,6 +108,13 @@ namespace StarNet
     public enum MessageFlags
     {
         None = 0,
-        ConfirmationRequired = 1
+        /// <summary>
+        /// Requires the recipient to send a confirmation.
+        /// </summary>
+        ConfirmationRequired = 1,
+        /// <summary>
+        /// This node should propegate the transaction to the rest of the network.
+        /// </summary>
+        PropegateTransaction = 2
     }
 }

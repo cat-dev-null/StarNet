@@ -24,7 +24,6 @@ namespace StarNet
         public TcpListener Listener { get; set; }
         public List<StarboundClient> Clients { get; set; }
         public ServerPool Servers { get; set; }
-        public RemoteNode Siblings { get; set; }
         public LocalSettings Settings { get; set; }
         public InterNodeNetwork Network { get; set; }
 
