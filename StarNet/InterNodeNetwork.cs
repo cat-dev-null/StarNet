@@ -9,6 +9,7 @@ using StarNet.Packets.StarNet;
 using Org.BouncyCastle.Crypto;
 using System.Linq;
 using System.Threading;
+using System.Diagnostics;
 
 namespace StarNet
 {
@@ -25,6 +26,7 @@ namespace StarNet
             PacketFactories = new Dictionary<byte, CreatePacketInstance>();
             PacketFactories[ConfirmationPacket.Id] = () => new ConfirmationPacket();
             PacketFactories[PingPacket.Id] = () => new PingPacket();
+            PacketFactories[ShutdownPacket.Id] = () => new ShutdownPacket();
         }
 
         public static void RegisterPacketHandler(byte id, PacketHandler handler)
@@ -47,17 +49,19 @@ namespace StarNet
             return NextTransactionNumber++;
         }
 
-        public InterNodeNetwork(ushort port, CryptoProvider crypto, bool clientOnly = false)
+        public InterNodeNetwork(CryptoProvider crypto)
         {
-            if (clientOnly)
-                NetworkClient = new UdpClient(AddressFamily.InterNetwork);
-            else
-                NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
+            NetworkClient = new UdpClient(AddressFamily.InterNetwork);
             CryptoProvider = crypto;
             Network = new List<RemoteNode>();
             PacketRetryList = new List<StarNetPacket>();
             RetryTimer = new Timer(DoRetries);
             NextTransactionNumber = 0;
+        }
+
+        public InterNodeNetwork(ushort port, CryptoProvider crypto) : this(crypto)
+        {
+            NetworkClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
         }
 
         public InterNodeNetwork(StarNetNode node, CryptoProvider crypto) : this(node.Settings.NetworkPort, crypto)
@@ -88,6 +92,18 @@ namespace StarNet
             if (LocalNode != null)
                 Console.WriteLine("Network: Listening on " + NetworkClient.Client.LocalEndPoint);
             RetryTimer.Change(10000, 10000);
+        }
+
+        public void Stop()
+        {
+            try
+            {
+                RetryTimer.Dispose();
+                NetworkClient.Close();
+            }
+            catch
+            {
+            }
         }
 
         public RemoteNode GetNode(IPEndPoint endPoint)

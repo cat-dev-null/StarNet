@@ -10,6 +10,7 @@ using StarNet.ClientHandlers;
 using System.Text;
 using System.IO;
 using StarNet.Packets.Starbound;
+using System.Diagnostics;
 
 namespace StarNet
 {
@@ -52,6 +53,25 @@ namespace StarNet
             Listener.Start();
             Listener.BeginAcceptSocket(AcceptClient, null);
             Console.WriteLine("Starbound: Listening on " + Listener.LocalEndpoint);
+        }
+
+        public void Shutdown()
+        {
+            int exitCode = 0;
+            try
+            {
+                Network.Stop();
+                Listener.Stop();
+            }
+            catch (Exception e)
+            {
+                exitCode = 1;
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                Environment.Exit(exitCode);
+            }
         }
 
         private void AcceptClient(IAsyncResult result)

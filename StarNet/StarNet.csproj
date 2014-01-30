@@ -22,6 +22,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Commandlineparameters>shutdown</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>full</DebugType>
@@ -99,6 +100,7 @@
     <Compile Include="Packets\StarNet\ConfirmationPacket.cs" />
     <Compile Include="CryptoProvider.cs" />
     <Compile Include="Packets\StarNet\PingPacket.cs" />
+    <Compile Include="Packets\StarNet\ShutdownPacket.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

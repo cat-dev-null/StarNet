@@ -113,6 +113,9 @@ namespace StarNet
                     case "ping":
                         PingServer(settings);
                         break;
+                    case "shutdown":
+                        Shutdown(settings);
+                        break;
                 }
             }
             catch (IndexOutOfRangeException)
@@ -121,24 +124,45 @@ namespace StarNet
             }
         }
 
-        private static void PingServer(LocalSettings settings)
+        private static void SendPacket(StarNetPacket packet, IPEndPoint endPoint, EventHandler confirmation, Action timedOut)
         {
-            var network = new InterNodeNetwork(settings.NetworkPort, new CryptoProvider(ServerKey), true);
-            var endPoint = new IPEndPoint(IPAddress.Loopback, settings.NetworkPort);
+            var network = new InterNodeNetwork(new CryptoProvider(ServerKey));
             network.Start();
-            var packet = new PingPacket();
             var reset = new ManualResetEvent(false);
             DateTime sent = default(DateTime);
             packet.ConfirmationReceived += (sender, e) =>
             {
-                Console.WriteLine("<- PONG {0}ms", (int)(DateTime.Now - sent).TotalMilliseconds);
+                if (confirmation != null)
+                    confirmation(sender, e);
                 reset.Set();
             };
             sent = DateTime.Now;
             network.Send(packet, endPoint);
+            if (confirmation == null)
+                return;
+            if (!reset.WaitOne(10000))
+                if (timedOut != null)
+                    timedOut();
+        }
+
+        private static void PingServer(LocalSettings settings)
+        {
+            var packet = new PingPacket();
+            DateTime sent = DateTime.Now;
+            var endPoint = new IPEndPoint(IPAddress.Loopback, settings.NetworkPort);
             Console.WriteLine("-> PING {0}", endPoint);
-            if (!reset.WaitOne(20000))
-                Console.WriteLine("Timed out.");
+            SendPacket(packet, endPoint, (sender, e) =>
+            {
+                Console.WriteLine("<- PONG {0}ms", (int)(DateTime.Now - sent).TotalMilliseconds);
+            }, () => Console.WriteLine("Timed out."));
+        }
+
+        private static void Shutdown(LocalSettings settings)
+        {
+            var packet = new ShutdownPacket();
+            var endPoint = new IPEndPoint(IPAddress.Loopback, settings.NetworkPort);
+            Console.WriteLine("Instructing {0} to shut down.", endPoint);
+            SendPacket(packet, endPoint, null, null);
         }
     }
 }
