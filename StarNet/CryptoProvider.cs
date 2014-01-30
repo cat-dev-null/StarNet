@@ -9,6 +9,14 @@ namespace StarNet
     {
         private AsymmetricCipherKeyPair KeyPair { get; set; }
 
+        public AsymmetricKeyParameter PublicKey
+        {
+            get
+            {
+                return KeyPair.Public;
+            }
+        }
+
         public CryptoProvider(AsymmetricCipherKeyPair keyPair)
         {
             KeyPair = keyPair;

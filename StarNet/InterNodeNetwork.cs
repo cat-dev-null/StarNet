@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using StarNet.Packets.StarNet;
+using Org.BouncyCastle.Crypto;
 
 namespace StarNet
 {
@@ -74,10 +75,14 @@ namespace StarNet
             var payload = NetworkClient.EndReceive(result, ref endPoint);
             NetworkClient.BeginReceive(NetworkMessageReceived, null);
             var stream = new BinaryReader(new MemoryStream(payload), Encoding.UTF8);
-            // TODO: Verify payload authenticity with cryptographic signature
-            // The IP can probably be spoofed and then we'll look silly
-            if (endPoint.Address != IPAddress.Loopback)
+            AsymmetricKeyParameter key;
+            if (endPoint.Address == IPAddress.Loopback)
+                key = CryptoProvider.PublicKey;
+            else
+            {
+                // TODO: Look up key for the node that sent this message
                 return;
+            }
             try
             {
                 var id = stream.ReadByte();
@@ -89,19 +94,32 @@ namespace StarNet
                     var packet = PacketFactories[id]();
                     packet.Transaction = transaction;
                     packet.Read(stream);
-                    if (PacketHandlers.ContainsKey(id))
-                        PacketHandlers[id](packet, endPoint, this);
+                    int signatureLength = (int)(stream.BaseStream.Length - stream.BaseStream.Position);
+                    int messageLength = (int)stream.BaseStream.Position;
+                    stream.BaseStream.Seek(0, SeekOrigin.Begin);
+                    byte[] message = new byte[messageLength];
+                    byte[] signature = new byte[signatureLength];
+                    stream.BaseStream.Read(message, 0, message.Length);
+                    stream.BaseStream.Read(signature, 0, signature.Length);
+                    // Verify signature
+                    if (!CryptoProvider.VerifySignature(message, signature, key))
+                        Console.WriteLine("Warning: Received internode network packet with bad signature from {0}", endPoint);
                     else
-                        Console.WriteLine("Warning: Unhandled internode network packet with ID {0}", id);
-                    if ((flags & MessageFlags.PropegateTransaction) > 0)
                     {
-                        // TODO
+                        if (PacketHandlers.ContainsKey(id))
+                            PacketHandlers[id](packet, endPoint, this);
+                        else
+                            Console.WriteLine("Warning: Unhandled internode network packet with ID {0}", id);
+                        if ((flags & MessageFlags.PropegateTransaction) > 0)
+                        {
+                            // TODO
+                        }
+                        if ((flags & MessageFlags.ConfirmationRequired) > 0)
+                            Send(new ConfirmationPacket(transaction), endPoint); // TODO: Don't re-handle duplicate transactions
                     }
                 }
                 else
                     Console.WriteLine("Warning: Received unknown internode network packet ID {0}", id);
-                if ((flags & MessageFlags.ConfirmationRequired) > 0)
-                    Send(new ConfirmationPacket(transaction), endPoint); // TODO: Don't re-handle duplicate transactions
             }
             catch (Exception e)
             {
